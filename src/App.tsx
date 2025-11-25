@@ -169,6 +169,74 @@ const App: React.FC = () => {
     window.print();
   };
 
+  const handleExport = (): void => {
+    const exportData: AppState = {
+      showDisclaimer: false,
+      totalBudget,
+      numMonths,
+      customMonths,
+      startInDecember,
+      carAllowance,
+      healthPlan,
+      employeeIncluded,
+      spouseIncluded,
+      dependentsUnder25,
+      dependents25Plus,
+      priorities
+    };
+
+    const dataStr = JSON.stringify(exportData, null, 2);
+    const dataBlob = new Blob([dataStr], { type: 'application/json' });
+    const url = URL.createObjectURL(dataBlob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = `flexben-config-${new Date().toISOString().split('T')[0]}.json`;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    URL.revokeObjectURL(url);
+  };
+
+  const handleImport = (): void => {
+    const input = document.createElement('input');
+    input.type = 'file';
+    input.accept = '.json';
+    
+    input.onchange = (e: Event) => {
+      const file = (e.target as HTMLInputElement).files?.[0];
+      if (!file) return;
+
+      const reader = new FileReader();
+      reader.onload = (event: ProgressEvent<FileReader>) => {
+        try {
+          const importedData = JSON.parse(event.target?.result as string) as AppState;
+          
+          // Validate and apply imported data
+          if (importedData.totalBudget !== undefined) setTotalBudget(importedData.totalBudget);
+          if (importedData.numMonths !== undefined) setNumMonths(importedData.numMonths);
+          if (importedData.customMonths !== undefined) setCustomMonths(importedData.customMonths);
+          if (importedData.startInDecember !== undefined) setStartInDecember(importedData.startInDecember);
+          if (importedData.carAllowance !== undefined) setCarAllowance(importedData.carAllowance);
+          if (importedData.healthPlan !== undefined) setHealthPlan(importedData.healthPlan);
+          if (importedData.employeeIncluded !== undefined) setEmployeeIncluded(importedData.employeeIncluded);
+          if (importedData.spouseIncluded !== undefined) setSpouseIncluded(importedData.spouseIncluded);
+          if (importedData.dependentsUnder25 !== undefined) setDependentsUnder25(importedData.dependentsUnder25);
+          if (importedData.dependents25Plus !== undefined) setDependents25Plus(importedData.dependents25Plus);
+          if (importedData.priorities !== undefined) setPriorities(importedData.priorities);
+          
+          alert('Configuration imported successfully!');
+        } catch (error) {
+          console.error('Error importing file:', error);
+          alert('Error importing file. Please ensure it is a valid JSON file.');
+        }
+      };
+      
+      reader.readAsText(file);
+    };
+    
+    input.click();
+  };
+
   const handleAutoBalanceLast = (): void => {
     // Calculate total requested amount from all priorities
     const totalRequested = allPriorities.reduce((sum, p) => sum + p.yearlyAmount, 0);
@@ -228,6 +296,8 @@ const App: React.FC = () => {
         <Header 
           onPrint={handlePrint}
           onReset={() => setShowResetConfirm(true)}
+          onExport={handleExport}
+          onImport={handleImport}
         />
         
         {/* Configuration Section */}
