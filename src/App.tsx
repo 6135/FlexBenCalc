@@ -84,8 +84,16 @@ const App: React.FC = () => {
 
   const initialState = loadState();
 
+  const hasAcceptedBefore = localStorage.getItem('benefitsAcceptedBefore') === 'true';
   const [showDisclaimer, setShowDisclaimer] = useState<boolean>(true); // Always show on load
+  const [acceptanceText, setAcceptanceText] = useState<string>('');
   const [showResetConfirm, setShowResetConfirm] = useState<boolean>(false);
+  
+  const handleAcceptDisclaimer = (): void => {
+    localStorage.setItem('benefitsAcceptedBefore', 'true');
+    setShowDisclaimer(false);
+    setAcceptanceText('');
+  };
   const [totalBudget, setTotalBudget] = useState<number>(initialState.totalBudget);
   const [numMonths, setNumMonths] = useState<number>(initialState.numMonths);
   const [customMonths, setCustomMonths] = useState<boolean>(initialState.customMonths);
@@ -354,12 +362,31 @@ const App: React.FC = () => {
                 </div>
               </div>
             </div>
+            {!hasAcceptedBefore && (
+              <div className="mb-4">
+                <label className="block text-sm font-semibold text-gray-700 mb-2">
+                  To proceed, please type: <span className="text-red-600">I accept the terms</span>
+                </label>
+                <input
+                  type="text"
+                  value={acceptanceText}
+                  onChange={(e) => setAcceptanceText(e.target.value)}
+                  placeholder="Type here to accept..."
+                  className="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-red-500"
+                />
+              </div>
+            )}
             <div className="flex justify-end gap-3">
               <button
-                onClick={() => setShowDisclaimer(false)}
-                className="px-6 py-3 bg-red-600 text-white font-semibold rounded-lg hover:bg-red-700 transition-colors"
+                onClick={handleAcceptDisclaimer}
+                disabled={!hasAcceptedBefore && acceptanceText !== 'I accept the terms'}
+                className={`px-6 py-3 font-semibold rounded-lg transition-colors ${
+                  hasAcceptedBefore || acceptanceText === 'I accept the terms'
+                    ? 'bg-red-600 text-white hover:bg-red-700 cursor-pointer'
+                    : 'bg-gray-300 text-gray-500 cursor-not-allowed'
+                }`}
               >
-                I Understand and Accept
+                {hasAcceptedBefore ? 'I Understand and Accept' : 'Continue'}
               </button>
             </div>
           </div>
