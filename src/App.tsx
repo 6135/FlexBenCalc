@@ -62,6 +62,13 @@ const defaults: AppState = {
   priorities: []
 };
 
+// Pricing table - moved outside component to avoid dependency issues
+const pricingTable: PricingTable = {
+  downgrade: { employee: 370.88, spouse: 370.88, under25: 333.80, over25: 370.88 },
+  standard: { employee: 598.92, spouse: 598.92, under25: 441.28, over25: 598.61 },
+  upgrade: { employee: 898.61, spouse: 898.61, under25: 662.10, over25: 898.61 }
+};
+
 const App: React.FC = () => {
 
   // Load from localStorage or use defaults
@@ -129,13 +136,6 @@ const App: React.FC = () => {
     setShowResetConfirm(false);
   };
 
-  // Pricing table
-  const pricingTable: PricingTable = {
-    downgrade: { employee: 370.88, spouse: 370.88, under25: 333.80, over25: 370.88 },
-    standard: { employee: 598.92, spouse: 598.92, under25: 441.28, over25: 598.61 },
-    upgrade: { employee: 898.61, spouse: 898.61, under25: 662.10, over25: 898.61 }
-  };
-
   // Calculate health insurance costs and priorities
   const healthInsurancePriorities = useMemo((): Priority[] => {
     const standardPrices = pricingTable.standard;
@@ -192,7 +192,10 @@ const App: React.FC = () => {
   }, [healthPlan, employeeIncluded, spouseIncluded, dependentsUnder25, dependents25Plus]);
 
   // Combine health insurance priorities with user priorities
-  const allPriorities: Priority[] = [...healthInsurancePriorities, ...priorities];
+  const allPriorities = useMemo((): Priority[] => 
+    [...healthInsurancePriorities, ...priorities],
+    [healthInsurancePriorities, priorities]
+  );
 
   // Calculate health insurance summary for display
   const healthInsuranceCosts = useMemo((): HealthInsuranceCosts => {
@@ -281,7 +284,6 @@ const App: React.FC = () => {
   };
 
   const totalSurplus: number = calculateAllocation.surplusPerMonth.reduce((sum, val) => sum + val, 0);
-  const totalNeeded: number = priorities.reduce((sum, p) => sum + p.yearlyAmount, 0);
 
   return (
     <div className="min-h-screen bg-gray-50 p-8">
