@@ -573,7 +573,7 @@ const App: React.FC = () => {
                         step="0.01"
                         value={0}
                         disabled
-                        className="w-full px-3 py-1 pr-6 text-right border border-gray-300 rounded bg-gray-100 text-gray-400"
+                        className="w-full px-3 py-1 pr-6 border border-gray-300 rounded bg-gray-100 text-gray-400"
                       />
                       <span className="absolute right-2 top-1/2 -translate-y-1/2 text-gray-400 text-sm">€</span>
                     </div>
@@ -589,7 +589,7 @@ const App: React.FC = () => {
                         step="0.01"
                         value={0}
                         disabled
-                        className="w-full px-3 py-1 pr-6 text-right border border-gray-300 rounded bg-gray-100 text-gray-400"
+                        className="w-full px-3 py-1 pr-6 border border-gray-300 rounded bg-gray-100 text-gray-400"
                       />
                       <span className="absolute right-2 top-1/2 -translate-y-1/2 text-gray-400 text-sm">€</span>
                     </div>
@@ -605,7 +605,7 @@ const App: React.FC = () => {
                         step="0.01"
                         value={0}
                         disabled
-                        className="w-full px-3 py-1 pr-6 text-right border border-gray-300 rounded bg-gray-100 text-gray-400"
+                        className="w-full px-3 py-1 pr-6 border border-gray-300 rounded bg-gray-100 text-gray-400"
                       />
                       <span className="absolute right-2 top-1/2 -translate-y-1/2 text-gray-400 text-sm">€</span>
                     </div>
