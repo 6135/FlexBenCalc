@@ -49,7 +49,7 @@ interface HealthInsuranceCosts {
 
 // Default values
 const defaults: AppState = {
-  showDisclaimer: true,
+  showDisclaimer: false, // Not persisted - always shown on load
   totalBudget: 575,
   numMonths: 12,
   customMonths: false,
@@ -84,7 +84,7 @@ const App: React.FC = () => {
 
   const initialState = loadState();
 
-  const [showDisclaimer, setShowDisclaimer] = useState<boolean>(initialState.showDisclaimer);
+  const [showDisclaimer, setShowDisclaimer] = useState<boolean>(true); // Always show on load
   const [showResetConfirm, setShowResetConfirm] = useState<boolean>(false);
   const [totalBudget, setTotalBudget] = useState<number>(initialState.totalBudget);
   const [numMonths, setNumMonths] = useState<number>(initialState.numMonths);
@@ -97,10 +97,10 @@ const App: React.FC = () => {
   const [dependents25Plus, setDependents25Plus] = useState<number>(initialState.dependents25Plus);
   const [priorities, setPriorities] = useState<Priority[]>(initialState.priorities);
 
-  // Save to localStorage whenever state changes
+  // Save to localStorage whenever state changes (showDisclaimer excluded - always shows on load)
   useEffect(() => {
     const stateToSave: AppState = {
-      showDisclaimer,
+      showDisclaimer: false, // Not persisted
       totalBudget,
       numMonths,
       customMonths,
@@ -117,7 +117,7 @@ const App: React.FC = () => {
     } catch (e) {
       console.error('Error saving state:', e);
     }
-  }, [showDisclaimer, totalBudget, numMonths, customMonths, carAllowance, healthPlan, 
+  }, [totalBudget, numMonths, customMonths, carAllowance, healthPlan, 
       employeeIncluded, spouseIncluded, dependentsUnder25, dependents25Plus, priorities]);
 
   // Reset function
