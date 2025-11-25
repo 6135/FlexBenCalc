@@ -8,6 +8,7 @@ interface Priority {
   name: string;
   yearlyAmount: number;
   isHealthInsurance?: boolean;
+  note?: string;
 }
 
 interface PricingTableRow {
@@ -636,9 +637,9 @@ const App: React.FC = () => {
                   )}
                   
                   <div className="mt-4 p-3 bg-blue-50 border border-blue-200 rounded text-xs text-blue-800">
-                    <strong>Note:</strong> Health insurance costs are now included as priorities in the allocation table below. Any upgrade beyond standard plan or family member coverage will appear as a separate priority line.
+                    <strong>Note:</strong> Health insurance costs are included as priorities in the allocation table below. Any upgrade beyond standard plan or family member coverage will appear as a separate priority line.
                   </div>
-                </div>
+                </div>    
               </div>
 
               {/* Health Insurance Plan Section */}
@@ -829,33 +830,45 @@ const App: React.FC = () => {
           
           <div className="space-y-3">
             {priorities.map((priority, index) => (
-              <div key={priority.id} className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 sm:gap-4 p-3 sm:p-4 bg-gray-50 rounded-md">
-                <div className="flex-shrink-0 w-8 h-8 bg-blue-600 text-white rounded-full flex items-center justify-center font-semibold self-start sm:self-center">
-                  {index + 1}
-                </div>
-                <input
-                  type="text"
-                  value={priority.name}
-                  onChange={(e) => updatePriority(priority.id, 'name', e.target.value)}
-                  className="flex-1 px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                  placeholder="Priority name"
-                />
-                <div className="relative w-full sm:w-40">
+              <div key={priority.id} className="flex flex-col gap-3 p-3 sm:p-4 bg-gray-50 rounded-md">
+                <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 sm:gap-4">
+                  <div className="flex-shrink-0 w-8 h-8 bg-blue-600 text-white rounded-full flex items-center justify-center font-semibold self-start sm:self-center" title={priority.note || ''}>
+                    {index + 1}
+                  </div>
                   <input
-                    type="number"
-                    value={priority.yearlyAmount === 0 ? '' : priority.yearlyAmount}
-                    onChange={(e) => updatePriority(priority.id, 'yearlyAmount', e.target.value)}
-                    className="w-full px-4 py-2 pr-8 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                    placeholder="Yearly amount"
+                    type="text"
+                    value={priority.name}
+                    onChange={(e) => updatePriority(priority.id, 'name', e.target.value)}
+                    className="flex-1 px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    placeholder="Priority name"
                   />
-                  <span className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500">€</span>
+                  <div className="relative w-full sm:w-40">
+                    <input
+                      type="number"
+                      value={priority.yearlyAmount === 0 ? '' : priority.yearlyAmount}
+                      onChange={(e) => updatePriority(priority.id, 'yearlyAmount', e.target.value)}
+                      className="w-full px-4 py-2 pr-8 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                      placeholder="Yearly amount"
+                    />
+                    <span className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500">€</span>
+                  </div>
+                  <button
+                    onClick={() => removePriority(priority.id)}
+                    className="w-full sm:w-auto px-3 py-2 bg-red-600 text-white rounded-md hover:bg-red-700 transition-colors"
+                  >
+                    Remove
+                  </button>
                 </div>
-                <button
-                  onClick={() => removePriority(priority.id)}
-                  className="w-full sm:w-auto px-3 py-2 bg-red-600 text-white rounded-md hover:bg-red-700 transition-colors"
-                >
-                  Remove
-                </button>
+                <div className="flex items-center gap-2">
+                  <span className="text-sm text-gray-600 whitespace-nowrap">Note:</span>
+                  <input
+                    type="text"
+                    value={priority.note || ''}
+                    onChange={(e) => updatePriority(priority.id, 'note', e.target.value)}
+                    className="flex-1 px-3 py-1 text-sm border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    placeholder="Optional note"
+                  />
+                </div>
               </div>
             ))}
           </div>
@@ -890,8 +903,23 @@ const App: React.FC = () => {
                   return (
                     <tr key={priority.id} className={`hover:bg-gray-50 transition-colors ${priority.isHealthInsurance ? 'bg-cyan-50' : ''}`}>
                       <td className={`px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium border border-gray-200 ${priority.isHealthInsurance ? 'text-cyan-900 bg-cyan-100' : 'text-gray-900 bg-gray-50'}`}>
-                        {priority.name}
-                        {priority.isHealthInsurance && <span className="ml-2 text-xs text-cyan-600">🏥</span>}
+                        <div className="flex items-center gap-2">
+                          <span className="relative group cursor-help" title={priority.note || ''}>
+                            {i + 1}.
+                            {priority.note && (
+                              <span className="hidden group-hover:block absolute left-0 top-full mt-1 z-10 w-max max-w-xs bg-gray-800 text-white text-xs rounded px-2 py-1 shadow-lg">
+                                {priority.note}
+                              </span>
+                            )}
+                          </span>
+                          <span>{priority.name}</span>
+                          {priority.isHealthInsurance && <span className="ml-1 text-xs text-cyan-600">🏥</span>}
+                        </div>
+                        {priority.note && (
+                          <div className="hidden print:block text-xs text-gray-600 italic mt-1 ml-5">
+                            Note: {priority.note}
+                          </div>
+                        )}
                       </td>
                       {calculateAllocation.matrix.map((month, monthIndex) => {
                         const value = month[i];
