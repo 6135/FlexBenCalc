@@ -16,6 +16,7 @@ export const useHealthInsuranceCalculations = (
     const insurancePriorities: Priority[] = [];
     
     // Employee - only add if upgrade (cost above standard)
+    // For downgrade, the credit is handled in effectiveBudget calculation
     if (employeeIncluded && healthPlan === 'upgrade') {
       const upgradeCost = selectedPrices.employee - standardPrices.employee;
       insurancePriorities.push({
@@ -26,9 +27,12 @@ export const useHealthInsuranceCalculations = (
       });
     }
     
-    // Spouse cost - employee pays: full cost - 50% of selected plan (or 50% of standard if upgrade)
+    // Spouse cost - employee pays: full cost - company contribution
+    // Company pays 50% of standard plan (or 50% of selected if downgrade)
     if (spouseIncluded) {
-      const companyPays = healthPlan === 'upgrade' ? standardPrices.spouse * 0.5 : selectedPrices.spouse * 0.5;
+      const companyPays = healthPlan === 'downgrade' 
+        ? selectedPrices.spouse * 0.5  // For downgrade, company pays 50% of downgrade cost
+        : standardPrices.spouse * 0.5; // For standard/upgrade, company pays 50% of standard
       const spouseCost = selectedPrices.spouse - companyPays;
       insurancePriorities.push({
         id: -2,
@@ -38,9 +42,11 @@ export const useHealthInsuranceCalculations = (
       });
     }
     
-    // Dependents under 25 - employee pays: full cost - 50% of selected plan per dependent (or 50% of standard if upgrade)
+    // Dependents under 25
     if (dependentsUnder25 > 0) {
-      const companyPaysPerDependent = healthPlan === 'upgrade' ? standardPrices.under25 * 0.5 : selectedPrices.under25 * 0.5;
+      const companyPaysPerDependent = healthPlan === 'downgrade'
+        ? selectedPrices.under25 * 0.5  // For downgrade, company pays 50% of downgrade cost
+        : standardPrices.under25 * 0.5; // For standard/upgrade, company pays 50% of standard
       const dependentsCost = (dependentsUnder25 * selectedPrices.under25) - (dependentsUnder25 * companyPaysPerDependent);
       insurancePriorities.push({
         id: -3,
@@ -50,9 +56,11 @@ export const useHealthInsuranceCalculations = (
       });
     }
     
-    // Dependents 25+ - employee pays: full cost - 50% of selected plan per dependent (or 50% of standard if upgrade)
+    // Dependents 25+
     if (dependents25Plus > 0) {
-      const companyPaysPerDependent = healthPlan === 'upgrade' ? standardPrices.over25 * 0.5 : selectedPrices.over25 * 0.5;
+      const companyPaysPerDependent = healthPlan === 'downgrade'
+        ? selectedPrices.over25 * 0.5  // For downgrade, company pays 50% of downgrade cost
+        : standardPrices.over25 * 0.5; // For standard/upgrade, company pays 50% of standard
       const dependentsCost = (dependents25Plus * selectedPrices.over25) - (dependents25Plus * companyPaysPerDependent);
       insurancePriorities.push({
         id: -4,
@@ -77,12 +85,14 @@ export const useHealthInsuranceCalculations = (
     
     const totalCost = employeeValue + spouseValue + dependentsUnder25Value + dependents25PlusValue;
     
-    // Company pays: 50% of selected plan, except for upgrade where it's 50% of standard
+    // Company contribution calculation:
+    // - Employee: 100% of standard plan (always)
+    // - Family members: 50% of standard plan for standard/upgrade, 50% of downgrade plan for downgrade
     const companyContribution = 
-      (employeeIncluded ? (healthPlan === 'upgrade' ? standardPrices.employee * 0.5 : prices.employee * 0.5) : 0) +
-      (spouseIncluded ? (healthPlan === 'upgrade' ? standardPrices.spouse * 0.5 : prices.spouse * 0.5) : 0) +
-      (dependentsUnder25 * (healthPlan === 'upgrade' ? standardPrices.under25 * 0.5 : prices.under25 * 0.5)) +
-      (dependents25Plus * (healthPlan === 'upgrade' ? standardPrices.over25 * 0.5 : prices.over25 * 0.5));
+      (employeeIncluded ? standardPrices.employee : 0) +
+      (spouseIncluded ? (healthPlan === 'downgrade' ? prices.spouse * 0.5 : standardPrices.spouse * 0.5) : 0) +
+      (dependentsUnder25 * (healthPlan === 'downgrade' ? prices.under25 * 0.5 : standardPrices.under25 * 0.5)) +
+      (dependents25Plus * (healthPlan === 'downgrade' ? prices.over25 * 0.5 : standardPrices.over25 * 0.5));
     
     const employeeContribution = totalCost - companyContribution;
     
