@@ -260,6 +260,7 @@ const App: React.FC = () => {
             dependentsUnder25={dependentsUnder25}
             dependents25Plus={dependents25Plus}
             totalBudget={totalBudget}
+            effectiveBudget={effectiveBudget}
             healthInsuranceCosts={healthInsuranceCosts}
             onHealthPlanChange={setHealthPlan}
             onEmployeeIncludedChange={setEmployeeIncluded}
