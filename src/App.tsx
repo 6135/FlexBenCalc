@@ -229,7 +229,13 @@ const App: React.FC = () => {
     };
   }, [healthPlan, employeeIncluded, spouseIncluded, dependentsUnder25, dependents25Plus]);
 
-  const monthlyAllowance: number = totalBudget / numMonths;
+  // Effective budget includes the negative employee contribution (when company owes credits back)
+  const effectiveBudget: number = useMemo(() => {
+    const creditBack = healthInsuranceCosts.employeeContribution < 0 ? Math.abs(healthInsuranceCosts.employeeContribution) : 0;
+    return totalBudget + creditBack;
+  }, [totalBudget, healthInsuranceCosts.employeeContribution]);
+
+  const monthlyAllowance: number = effectiveBudget / numMonths;
 
   const monthNames: string[] = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
 
@@ -412,14 +418,20 @@ const App: React.FC = () => {
           </div>
 
           {/* Summary Stats */}
-          <div className="grid grid-cols-4 gap-4 p-4 bg-gray-50 rounded-md">
+          <div className="grid grid-cols-5 gap-4 p-4 bg-gray-50 rounded-md">
             <div>
-              <div className="text-sm text-gray-600">Total Budget</div>
+              <div className="text-sm text-gray-600">Fixed Budget</div>
               <div className="text-lg font-semibold text-gray-900">{totalBudget.toFixed(2)} €</div>
             </div>
             <div>
-              <div className="text-sm text-gray-600">Monthly Allowance</div>
-              <div className="text-lg font-semibold text-gray-900">{monthlyAllowance.toFixed(2)} €</div>
+              <div className="text-sm text-gray-600">Health Credit Back</div>
+              <div className="text-lg font-semibold text-green-600">
+                {healthInsuranceCosts.employeeContribution < 0 ? `+${Math.abs(healthInsuranceCosts.employeeContribution).toFixed(2)}` : '0.00'} €
+              </div>
+            </div>
+            <div>
+              <div className="text-sm text-gray-600">Effective Budget</div>
+              <div className="text-lg font-semibold text-blue-600">{effectiveBudget.toFixed(2)} €</div>
             </div>
             <div>
               <div className="text-sm text-gray-600">Total Needed (All Priorities)</div>
@@ -427,14 +439,14 @@ const App: React.FC = () => {
             </div>
             <div>
               <div className="text-sm text-gray-600">
-                {allPriorities.reduce((sum, p) => sum + p.yearlyAmount, 0) > totalBudget ? 'Underfunding' : 'Surplus'}
+                {allPriorities.reduce((sum, p) => sum + p.yearlyAmount, 0) > effectiveBudget ? 'Underfunding' : 'Surplus'}
               </div>
               <div className={`text-lg font-semibold ${
-                allPriorities.reduce((sum, p) => sum + p.yearlyAmount, 0) > totalBudget ? 'text-red-600' : 'text-green-600'
+                allPriorities.reduce((sum, p) => sum + p.yearlyAmount, 0) > effectiveBudget ? 'text-red-600' : 'text-green-600'
               }`}>
-                {allPriorities.reduce((sum, p) => sum + p.yearlyAmount, 0) > totalBudget 
-                  ? (allPriorities.reduce((sum, p) => sum + p.yearlyAmount, 0) - totalBudget).toFixed(2)
-                  : (totalBudget - allPriorities.reduce((sum, p) => sum + p.yearlyAmount, 0)).toFixed(2)
+                {allPriorities.reduce((sum, p) => sum + p.yearlyAmount, 0) > effectiveBudget 
+                  ? (allPriorities.reduce((sum, p) => sum + p.yearlyAmount, 0) - effectiveBudget).toFixed(2)
+                  : (effectiveBudget - allPriorities.reduce((sum, p) => sum + p.yearlyAmount, 0)).toFixed(2)
                 } €
               </div>
             </div>
@@ -517,10 +529,10 @@ const App: React.FC = () => {
                     <div className="flex justify-between items-center font-bold">
                       <label className="text-sm text-gray-900 flex items-center gap-1">
                         Total Available Credits
-                        <span className="text-gray-400 cursor-help" title="Total credits for allocation to priorities">ℹ</span>
+                        <span className="text-gray-400 cursor-help" title="Total credits for allocation to priorities (includes health insurance credit back)">ℹ</span>
                       </label>
                       <div className="w-32 px-3 py-1 text-right bg-green-50 border-2 border-green-400 rounded">
-                        {totalBudget.toFixed(2)} €
+                        {effectiveBudget.toFixed(2)} €
                       </div>
                     </div>
                   </div>
@@ -529,6 +541,12 @@ const App: React.FC = () => {
                     <label className="text-gray-700">Monthly distributable value</label>
                     <div className="font-semibold text-gray-900">{monthlyAllowance.toFixed(2)} €</div>
                   </div>
+                  
+                  {healthInsuranceCosts.employeeContribution < 0 && (
+                    <div className="mt-2 p-2 bg-green-50 border border-green-200 rounded text-xs text-green-800">
+                      <strong>💰 Health Credit Back:</strong> You selected a plan cheaper than standard! {Math.abs(healthInsuranceCosts.employeeContribution).toFixed(2)} € has been added to your available budget.
+                    </div>
+                  )}
                   
                   <div className="mt-4 p-3 bg-blue-50 border border-blue-200 rounded text-xs text-blue-800">
                     <strong>Note:</strong> Health insurance costs are now included as priorities in the allocation table below. Any upgrade beyond standard plan or family member coverage will appear as a separate priority line.
