@@ -87,7 +87,6 @@ const App: React.FC = () => {
   const initialState = loadState();
 
   const [showDisclaimer, setShowDisclaimer] = useState<boolean>(true); // Always show on load
-  const [showDisclaimer, setShowDisclaimer] = useState<boolean>(true); // Always show on load
   const [showResetConfirm, setShowResetConfirm] = useState<boolean>(false);
   const [totalBudget, setTotalBudget] = useState<number>(initialState.totalBudget);
   const [numMonths, setNumMonths] = useState<number>(initialState.numMonths);
@@ -102,10 +101,8 @@ const App: React.FC = () => {
   const [priorities, setPriorities] = useState<Priority[]>(initialState.priorities);
 
   // Save to localStorage whenever state changes (showDisclaimer excluded - always shows on load)
-  // Save to localStorage whenever state changes (showDisclaimer excluded - always shows on load)
   useEffect(() => {
     const stateToSave: AppState = {
-      showDisclaimer: false, // Not persisted
       showDisclaimer: false, // Not persisted
       totalBudget,
       numMonths,
