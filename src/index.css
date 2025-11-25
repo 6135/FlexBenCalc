@@ -1,3 +1,112 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+/* Print Styles */
+@media print {
+  /* Hide all buttons and interactive elements */
+  button,
+  input,
+  select,
+  .no-print {
+    display: none !important;
+  }
+
+  /* Force page breaks */
+  .disclaimer-page {
+    page-break-after: always;
+    display: block !important;
+    position: relative;
+    margin: 0;
+    padding: 2rem;
+  }
+
+  /* Hide the disclaimer modal backdrop */
+  .fixed.inset-0.bg-black {
+    display: none !important;
+  }
+
+  /* Show disclaimer as first page */
+  .print-disclaimer {
+    display: block !important;
+    page-break-after: always;
+    width: 100%;
+    padding: 2rem;
+  }
+
+  /* Hide main content on first page */
+  body {
+    margin: 0;
+    padding: 0;
+  }
+
+  /* Reset page margins for better PDF output */
+  @page {
+    margin: 1cm;
+    size: landscape;
+  }
+
+  /* Rotate and optimize table for landscape printing */
+  .allocation-matrix-container {
+    transform: rotate(0deg);
+    transform-origin: top left;
+    width: 100%;
+    page-break-inside: avoid;
+  }
+
+  .allocation-matrix-container table {
+    width: 100%;
+    font-size: 8pt;
+    border-collapse: collapse;
+  }
+
+  .allocation-matrix-container th,
+  .allocation-matrix-container td {
+    padding: 4px 6px;
+    border: 1px solid #333;
+  }
+
+  /* Optimize other sections for print */
+  .bg-white {
+    box-shadow: none !important;
+    border: 1px solid #ddd;
+  }
+
+  /* Make sure colors print */
+  .bg-green-100,
+  .bg-yellow-50,
+  .bg-red-50,
+  .bg-cyan-50,
+  .bg-amber-50 {
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+
+  /* Hide unnecessary sections */
+  .print-hide {
+    display: none !important;
+  }
+
+  /* Compact spacing for print */
+  .p-6, .p-8 {
+    padding: 1rem !important;
+  }
+
+  .mb-6, .mb-8 {
+    margin-bottom: 0.5rem !important;
+  }
+
+  /* Ensure page breaks */
+  .page-break-before {
+    page-break-before: always;
+  }
+
+  .page-break-after {
+    page-break-after: always;
+  }
+
+  /* Footer */
+  footer {
+    page-break-inside: avoid;
+  }
+}

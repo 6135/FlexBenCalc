@@ -291,8 +291,43 @@ const App: React.FC = () => {
 
   const totalSurplus: number = calculateAllocation.surplusPerMonth.reduce((sum, val) => sum + val, 0);
 
+  const handlePrint = (): void => {
+    window.print();
+  };
+
   return (
     <div className="min-h-screen bg-gray-50 p-4 sm:p-6 lg:p-8">
+      {/* Print-only Disclaimer (First Page) */}
+      <div className="print-disclaimer hidden">
+        <div style={{ padding: '2rem', maxWidth: '800px', margin: '0 auto' }}>
+          <div style={{ display: 'flex', alignItems: 'flex-start', gap: '1rem', marginBottom: '2rem' }}>
+            <div style={{ flexShrink: 0, width: '48px', height: '48px', backgroundColor: '#fee2e2', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '24px' }}>
+              ⚠️
+            </div>
+            <div>
+              <h2 style={{ fontSize: '24px', fontWeight: 'bold', color: '#b91c1c', marginBottom: '1rem' }}>IMPORTANT DISCLAIMER</h2>
+              <div style={{ color: '#374151', lineHeight: '1.6' }}>
+                <p style={{ fontWeight: '600', marginBottom: '1rem' }}>
+                  This calculator is provided for informational purposes only. By using this tool, you acknowledge and agree that:
+                </p>
+                <ul style={{ listStyleType: 'disc', paddingLeft: '2rem', marginBottom: '1rem' }}>
+                  <li style={{ marginBottom: '0.5rem' }}><strong>No Guarantee of Accuracy:</strong> All calculations performed by this tool are the user's sole responsibility.</li>
+                  <li style={{ marginBottom: '0.5rem' }}><strong>No Liability:</strong> The creator assumes NO responsibility for any errors, mistakes, or financial losses resulting from the use of this calculator.</li>
+                  <li style={{ marginBottom: '0.5rem' }}><strong>Verify All Results:</strong> You must independently verify all calculations before making any financial decisions.</li>
+                  <li style={{ marginBottom: '0.5rem' }}><strong>Use At Your Own Risk:</strong> This tool is provided "as-is" without any warranties of any kind.</li>
+                </ul>
+                <p style={{ fontWeight: '600', color: '#dc2626', marginTop: '1.5rem' }}>
+                  If you do not agree with these terms, do not use this calculator.
+                </p>
+              </div>
+            </div>
+          </div>
+          <div style={{ borderTop: '2px solid #e5e7eb', paddingTop: '1rem', marginTop: '2rem', textAlign: 'center', color: '#6b7280' }}>
+            <p>Created with the invaluable help of <strong>Ana Pereira</strong> and <strong>Florbela Tavares</strong></p>
+          </div>
+        </div>
+      </div>
+
       {/* Disclaimer Modal */}
       {showDisclaimer && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
@@ -360,12 +395,20 @@ const App: React.FC = () => {
       <div className="max-w-7xl mx-auto">
         <div className="flex justify-between items-center mb-8">
           <h1 className="text-3xl font-bold text-gray-900">Benefits Allocation Calculator</h1>
-          <button
-            onClick={() => setShowResetConfirm(true)}
-            className="px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700 transition-colors font-semibold"
-          >
-            🔄 Reset All Data
-          </button>
+          <div className="flex gap-3">
+            <button
+              onClick={handlePrint}
+              className="px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 transition-colors font-semibold"
+            >
+              🖨️ Print PDF
+            </button>
+            <button
+              onClick={() => setShowResetConfirm(true)}
+              className="px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700 transition-colors font-semibold"
+            >
+              🔄 Reset All Data
+            </button>
+          </div>
         </div>
         
         {/* Configuration Section */}
@@ -772,10 +815,10 @@ const App: React.FC = () => {
         </div>
 
         {/* Allocation Matrix */}
-        <div className="bg-white rounded-lg shadow-lg p-4 sm:p-6">
+        <div className="bg-white rounded-lg shadow-lg p-4 sm:p-6 page-break-before">
           <h2 className="text-lg sm:text-xl font-semibold text-gray-800 mb-4">Monthly Allocation Matrix</h2>
           
-          <div className="overflow-x-auto -mx-4 sm:mx-0">
+          <div className="overflow-x-auto -mx-4 sm:mx-0 allocation-matrix-container">
           <div className="inline-block min-w-full align-middle">
           <div className="overflow-hidden">
             <table className="w-full border-collapse min-w-[800px]">
