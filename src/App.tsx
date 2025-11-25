@@ -13,6 +13,7 @@ import { PriorityList } from './components/PriorityList';
 import { AllocationMatrix } from './components/AllocationMatrix';
 import { Header } from './components/Header';
 import { Footer } from './components/Footer';
+import { analytics, getBudgetRange } from './utils/analytics';
 
 const App: React.FC = () => {
 
@@ -70,6 +71,7 @@ const App: React.FC = () => {
 
   // Reset function
   const resetToDefaults = (): void => {
+    analytics.resetData();
     setTotalBudget(defaults.totalBudget);
     setNumMonths(defaults.numMonths);
     setCustomMonths(defaults.customMonths);
@@ -130,11 +132,13 @@ const App: React.FC = () => {
   );
 
   const addPriority = (): void => {
+    analytics.addPriority();
     const newId = Math.max(...priorities.map(p => p.id), 0) + 1;
     setPriorities([...priorities, { id: newId, name: `Priority ${newId}`, yearlyAmount: 0 }]);
   };
 
   const removePriority = (id: number): void => {
+    analytics.removePriority();
     setPriorities(priorities.filter(p => p.id !== id));
   };
 
@@ -162,14 +166,19 @@ const App: React.FC = () => {
   };
 
   const handleDragEnd = (): void => {
+    if (draggedItem !== null) {
+      analytics.reorderPriority();
+    }
     setDraggedItem(null);
   };
 
   const handlePrint = (): void => {
+    analytics.printReport();
     window.print();
   };
 
   const handleExport = (): void => {
+    analytics.exportConfig();
     const exportData: AppState = {
       showDisclaimer: false,
       totalBudget,
@@ -193,7 +202,7 @@ const App: React.FC = () => {
     link.download = `flexben-config-${new Date().toISOString().split('T')[0]}.json`;
     document.body.appendChild(link);
     link.click();
-    document.body.removeChild(link);
+    link.remove();
     URL.revokeObjectURL(url);
   };
 
@@ -224,9 +233,11 @@ const App: React.FC = () => {
           if (importedData.dependents25Plus !== undefined) setDependents25Plus(importedData.dependents25Plus);
           if (importedData.priorities !== undefined) setPriorities(importedData.priorities);
           
+          analytics.importConfig(true);
           alert('Configuration imported successfully!');
         } catch (error) {
           console.error('Error importing file:', error);
+          analytics.importConfig(false);
           alert('Error importing file. Please ensure it is a valid JSON file.');
         }
       };
@@ -238,6 +249,7 @@ const App: React.FC = () => {
   };
 
   const handleAutoBalanceLast = (): void => {
+    analytics.autoBalance();
     // Calculate total requested amount from all priorities
     const totalRequested = allPriorities.reduce((sum, p) => sum + p.yearlyAmount, 0);
     const totalAvailable = effectiveBudget;
