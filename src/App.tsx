@@ -147,18 +147,15 @@ const App: React.FC = () => {
     const selectedPrices = pricingTable[healthPlan];
     const insurancePriorities: Priority[] = [];
     
-    // Employee cost - employee pays: full cost - 50% of selected plan (or 50% of standard if upgrade)
-    if (employeeIncluded) {
-      const companyPays = healthPlan === 'upgrade' ? standardPrices.employee * 0.5 : selectedPrices.employee * 0.5;
-      const employeePays = selectedPrices.employee - companyPays;
-      if (employeePays > 0) {
-        insurancePriorities.push({
-          id: -1,
-          name: `Health Insurance - Employee (${healthPlan})`,
-          yearlyAmount: employeePays,
-          isHealthInsurance: true
-        });
-      }
+    // Employee - only add if upgrade (cost above standard)
+    if (employeeIncluded && healthPlan === 'upgrade') {
+      const upgradeCost = selectedPrices.employee - standardPrices.employee;
+      insurancePriorities.push({
+        id: -1,
+        name: `Health Insurance - Employee (${healthPlan} upgrade)`,
+        yearlyAmount: upgradeCost,
+        isHealthInsurance: true
+      });
     }
     
     // Spouse cost - employee pays: full cost - 50% of selected plan (or 50% of standard if upgrade)
