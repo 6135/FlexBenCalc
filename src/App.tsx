@@ -435,7 +435,7 @@ const App: React.FC = () => {
                   type="number"
                   value={totalBudget === 0 ? '' : totalBudget}
                   onChange={(e) => setTotalBudget(parseFloat(e.target.value) || 0)}
-                  className="w-full px-4 py-2 pr-8 text-right border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  className="w-full px-4 py-2 pr-8 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                 />
                 <span className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500">€</span>
               </div>
@@ -557,7 +557,7 @@ const App: React.FC = () => {
                         step="0.01"
                         value={totalBudget === 0 ? '' : totalBudget}
                         onChange={(e) => setTotalBudget(parseFloat(e.target.value) || 0)}
-                        className="w-full px-3 py-1 pr-6 text-right border border-gray-300 rounded focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                        className="w-full px-3 py-1 pr-6 border border-gray-300 rounded focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                       />
                       <span className="absolute right-2 top-1/2 -translate-y-1/2 text-gray-500 text-sm">€</span>
                     </div>
@@ -844,7 +844,7 @@ const App: React.FC = () => {
                     type="number"
                     value={priority.yearlyAmount === 0 ? '' : priority.yearlyAmount}
                     onChange={(e) => updatePriority(priority.id, 'yearlyAmount', e.target.value)}
-                    className="w-full px-4 py-2 pr-8 text-right border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    className="w-full px-4 py-2 pr-8 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                     placeholder="Yearly amount"
                   />
                   <span className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500">€</span>
