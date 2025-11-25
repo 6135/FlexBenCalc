@@ -9,6 +9,7 @@ interface HealthInsuranceConfigProps {
   dependentsUnder25: number;
   dependents25Plus: number;
   totalBudget: number;
+  effectiveBudget: number;
   healthInsuranceCosts: HealthInsuranceCosts;
   onHealthPlanChange: (value: HealthPlanType) => void;
   onEmployeeIncludedChange: (value: boolean) => void;
@@ -25,6 +26,7 @@ export const HealthInsuranceConfig: React.FC<HealthInsuranceConfigProps> = ({
   dependentsUnder25,
   dependents25Plus,
   totalBudget,
+  effectiveBudget,
   healthInsuranceCosts,
   onHealthPlanChange,
   onEmployeeIncludedChange,
@@ -118,21 +120,31 @@ export const HealthInsuranceConfig: React.FC<HealthInsuranceConfigProps> = ({
               </div>
             </div>
             
-            {healthInsuranceCosts.employeeContribution < 0 && (
-              <div className="mt-2 p-2 bg-green-50 border border-green-200 rounded text-xs text-green-800">
-                <strong>💰 Health Credit Back:</strong> You selected a plan cheaper than standard! {Math.abs(healthInsuranceCosts.employeeContribution).toFixed(2)} € has been added to your available budget.
+            <div className="mt-4 pt-4 border-t-2 border-gray-300">
+              <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2 mb-3">
+                <span className="text-base font-semibold text-gray-900 flex items-center gap-1">
+                  Total Available Credits
+                  <span className="text-gray-400 cursor-help" title="Sum of all available credits">ℹ</span>
+                </span>
+                <div className="w-full sm:w-40">
+                  <div className="px-4 py-2 border-2 border-green-500 bg-green-50 rounded text-right font-bold text-green-700 text-lg">
+                    {effectiveBudget.toFixed(2)} €
+                  </div>
+                </div>
               </div>
-            )}
-            
-            <div className="mt-4 p-3 bg-blue-50 border-2 border-blue-300 rounded">
-              <div className="flex justify-between items-center mb-2">
-                <span className="text-sm font-semibold text-blue-900">Total Available Credits</span>
-                <span className="text-lg font-bold text-blue-900">{(totalBudget + (healthInsuranceCosts.employeeContribution < 0 ? Math.abs(healthInsuranceCosts.employeeContribution) : 0)).toFixed(2)} €</span>
+              
+              <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2 bg-gray-50 px-3 py-2 rounded mb-3">
+                <span className="text-sm text-gray-700">Monthly distributable value</span>
+                <span className="text-right font-semibold text-gray-900">
+                  {(effectiveBudget / 12).toFixed(2)} €
+                </span>
               </div>
-              <div className="flex justify-between items-center text-xs text-blue-700">
-                <span>Monthly distributable value</span>
-                <span className="font-semibold">{((totalBudget + (healthInsuranceCosts.employeeContribution < 0 ? Math.abs(healthInsuranceCosts.employeeContribution) : 0)) / 12).toFixed(2)} €</span>
-              </div>
+              
+              {healthInsuranceCosts.employeeContribution < 0 && (
+                <div className="p-2 bg-green-50 border border-green-200 rounded text-xs text-green-800">
+                  <strong>💰 Health Credit Back:</strong> You selected a plan cheaper than standard! {Math.abs(healthInsuranceCosts.employeeContribution).toFixed(2)} € has been added to your available budget.
+                </div>
+              )}
             </div>
             
             <div className="mt-4 p-3 bg-blue-50 border border-blue-200 rounded text-xs text-blue-800">
