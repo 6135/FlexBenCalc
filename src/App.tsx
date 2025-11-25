@@ -292,17 +292,17 @@ const App: React.FC = () => {
   const totalSurplus: number = calculateAllocation.surplusPerMonth.reduce((sum, val) => sum + val, 0);
 
   return (
-    <div className="min-h-screen bg-gray-50 p-8">
+    <div className="min-h-screen bg-gray-50 p-4 sm:p-6 lg:p-8">
       {/* Disclaimer Modal */}
       {showDisclaimer && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-lg shadow-2xl max-w-2xl w-full p-8">
-            <div className="flex items-start gap-4 mb-6">
+          <div className="bg-white rounded-lg shadow-2xl max-w-2xl w-full p-4 sm:p-6 lg:p-8 max-h-[90vh] overflow-y-auto">
+            <div className="flex flex-col sm:flex-row items-start gap-4 mb-6">
               <div className="flex-shrink-0 w-12 h-12 bg-red-100 rounded-full flex items-center justify-center">
                 <span className="text-2xl">⚠️</span>
               </div>
               <div>
-                <h2 className="text-2xl font-bold text-red-700 mb-2">IMPORTANT DISCLAIMER</h2>
+                <h2 className="text-xl sm:text-2xl font-bold text-red-700 mb-2">IMPORTANT DISCLAIMER</h2>
                 <div className="text-gray-700 space-y-3">
                   <p className="font-semibold">
                     This calculator is provided for informational purposes only. By using this tool, you acknowledge and agree that:
@@ -369,7 +369,7 @@ const App: React.FC = () => {
         </div>
         
         {/* Configuration Section */}
-        <div className="bg-white rounded-lg shadow-md p-6 mb-8">
+        <div className="bg-white rounded-lg shadow-md p-4 sm:p-6 mb-6 sm:mb-8">
           <h2 className="text-xl font-semibold text-gray-800 mb-4">Configuration</h2>
           
           <div className="space-y-6 mb-6">
@@ -418,26 +418,26 @@ const App: React.FC = () => {
           </div>
 
           {/* Summary Stats */}
-          <div className="grid grid-cols-5 gap-4 p-4 bg-gray-50 rounded-md">
-            <div>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3 sm:gap-4 p-3 sm:p-4 bg-gray-50 rounded-md">
+            <div className="p-2 sm:p-0">
               <div className="text-sm text-gray-600">Fixed Budget</div>
               <div className="text-lg font-semibold text-gray-900">{totalBudget.toFixed(2)} €</div>
             </div>
-            <div>
+            <div className="p-2 sm:p-0">
               <div className="text-sm text-gray-600">Health Credit Back</div>
               <div className="text-lg font-semibold text-green-600">
                 {healthInsuranceCosts.employeeContribution < 0 ? `+${Math.abs(healthInsuranceCosts.employeeContribution).toFixed(2)}` : '0.00'} €
               </div>
             </div>
-            <div>
+            <div className="p-2 sm:p-0">
               <div className="text-sm text-gray-600">Effective Budget</div>
               <div className="text-lg font-semibold text-blue-600">{effectiveBudget.toFixed(2)} €</div>
             </div>
-            <div>
+            <div className="p-2 sm:p-0">
               <div className="text-sm text-gray-600">Total Needed (All Priorities)</div>
               <div className="text-lg font-semibold text-gray-900">{allPriorities.reduce((sum, p) => sum + p.yearlyAmount, 0).toFixed(2)} €</div>
             </div>
-            <div>
+            <div className="p-2 sm:p-0">
               <div className="text-sm text-gray-600">
                 {allPriorities.reduce((sum, p) => sum + p.yearlyAmount, 0) > effectiveBudget ? 'Underfunding' : 'Surplus'}
               </div>
@@ -454,9 +454,9 @@ const App: React.FC = () => {
 
           {/* Extra Configuration Space */}
           <div className="mt-6">
-            <div className="flex justify-between items-start mb-4">
-              <h3 className="text-lg font-semibold text-gray-800">Health Insurance Configuration</h3>
-              <div className="flex flex-col gap-2">
+            <div className="flex flex-col lg:flex-row justify-between items-start gap-3 mb-4">
+              <h3 className="text-base sm:text-lg font-semibold text-gray-800">Health Insurance Configuration</h3>
+              <div className="flex flex-col gap-2 w-full lg:w-auto">
                 <div className="text-xs text-amber-700 bg-amber-50 px-3 py-1 rounded border border-amber-200">
                   ⚠️ Note: Bonus credits, car allowance, and remaining credits from previous year not yet implemented
                 </div>
@@ -466,13 +466,13 @@ const App: React.FC = () => {
               </div>
             </div>
             
-            <div className="grid grid-cols-2 gap-6">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6">
               {/* Available Credits Section */}
-              <div className="border border-gray-200 rounded-lg p-4">
+              <div className="border border-gray-200 rounded-lg p-3 sm:p-4">
                 <h4 className="text-sm font-semibold text-cyan-700 mb-3 bg-cyan-50 px-2 py-1 rounded">AVAILABLE CREDITS</h4>
                 
                 <div className="space-y-2">
-                  <div className="flex justify-between items-center">
+                  <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2">
                     <label className="text-sm text-gray-700 flex items-center gap-1">
                       Fixed credits
                       <span className="text-gray-400 cursor-help" title="Base annual budget allocation">ℹ</span>
@@ -482,10 +482,10 @@ const App: React.FC = () => {
                       step="0.01"
                       value={totalBudget}
                       onChange={(e) => setTotalBudget(parseFloat(e.target.value) || 0)}
-                      className="w-32 px-3 py-1 text-right border border-gray-300 rounded focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                      className="w-full sm:w-32 px-3 py-1 text-right border border-gray-300 rounded focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                     />
                   </div>
-                  <div className="flex justify-between items-center">
+                  <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2">
                     <label className="text-sm text-gray-400 flex items-center gap-1">
                       Variable credits (bonus)
                       <span className="text-gray-400 cursor-help" title="Not yet implemented">ℹ</span>
@@ -495,10 +495,10 @@ const App: React.FC = () => {
                       step="0.01"
                       value={0}
                       disabled
-                      className="w-32 px-3 py-1 text-right border border-gray-300 rounded bg-gray-100 text-gray-400"
+                      className="w-full sm:w-32 px-3 py-1 text-right border border-gray-300 rounded bg-gray-100 text-gray-400"
                     />
                   </div>
-                  <div className="flex justify-between items-center">
+                  <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2">
                     <label className="text-sm text-gray-400 flex items-center gap-1">
                       Car allowance (current year)
                       <span className="text-gray-400 cursor-help" title="Not yet implemented">ℹ</span>
@@ -508,10 +508,10 @@ const App: React.FC = () => {
                       step="0.01"
                       value={0}
                       disabled
-                      className="w-32 px-3 py-1 text-right border border-gray-300 rounded bg-gray-100 text-gray-400"
+                      className="w-full sm:w-32 px-3 py-1 text-right border border-gray-300 rounded bg-gray-100 text-gray-400"
                     />
                   </div>
-                  <div className="flex justify-between items-center">
+                  <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2">
                     <label className="text-sm text-gray-400 flex items-center gap-1">
                       Remaining credits (previous year)
                       <span className="text-gray-400 cursor-help" title="Not yet implemented">ℹ</span>
@@ -521,17 +521,17 @@ const App: React.FC = () => {
                       step="0.01"
                       value={0}
                       disabled
-                      className="w-32 px-3 py-1 text-right border border-gray-300 rounded bg-gray-100 text-gray-400"
+                      className="w-full sm:w-32 px-3 py-1 text-right border border-gray-300 rounded bg-gray-100 text-gray-400"
                     />
                   </div>
                   
                   <div className="pt-2 mt-2 border-t-2 border-gray-300">
-                    <div className="flex justify-between items-center font-bold">
+                    <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2 font-bold">
                       <label className="text-sm text-gray-900 flex items-center gap-1">
                         Total Available Credits
                         <span className="text-gray-400 cursor-help" title="Total credits for allocation to priorities (includes health insurance credit back)">ℹ</span>
                       </label>
-                      <div className="w-32 px-3 py-1 text-right bg-green-50 border-2 border-green-400 rounded">
+                      <div className="w-full sm:w-32 px-3 py-1 text-right bg-green-50 border-2 border-green-400 rounded">
                         {effectiveBudget.toFixed(2)} €
                       </div>
                     </div>
@@ -555,7 +555,7 @@ const App: React.FC = () => {
               </div>
 
               {/* Health Insurance Plan Section */}
-              <div className="border border-gray-200 rounded-lg p-4">
+              <div className="border border-gray-200 rounded-lg p-3 sm:p-4">
                 <h4 className="text-sm font-semibold text-cyan-700 mb-3 bg-cyan-50 px-2 py-1 rounded">HEALTH INSURANCE</h4>
                 
                 <div className="space-y-3">
@@ -684,9 +684,10 @@ const App: React.FC = () => {
             </div>
 
             {/* Pricing Table */}
-            <div className="mt-4 border border-gray-200 rounded-lg p-4 bg-gray-50">
+            <div className="mt-4 border border-gray-200 rounded-lg p-3 sm:p-4 bg-gray-50">
               <h5 className="text-sm font-semibold text-gray-700 mb-3">Annual Pricing Reference</h5>
-              <table className="w-full text-sm">
+              <div className="overflow-x-auto">
+              <table className="w-full text-sm min-w-[400px]">
                 <thead>
                   <tr className="border-b border-gray-300">
                     <th className="text-left py-2"></th>
@@ -722,17 +723,18 @@ const App: React.FC = () => {
                   </tr>
                 </tbody>
               </table>
+              </div>
             </div>
           </div>
         </div>
 
         {/* Priorities Configuration */}
-        <div className="bg-white rounded-lg shadow-md p-6 mb-8">
-          <div className="flex justify-between items-center mb-4">
-            <h2 className="text-xl font-semibold text-gray-800">Priorities</h2>
+        <div className="bg-white rounded-lg shadow-md p-4 sm:p-6 mb-6 sm:mb-8">
+          <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 mb-4">
+            <h2 className="text-lg sm:text-xl font-semibold text-gray-800">Priorities</h2>
             <button
               onClick={addPriority}
-              className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors"
+              className="w-full sm:w-auto px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors"
             >
               + Add Priority
             </button>
@@ -740,8 +742,8 @@ const App: React.FC = () => {
           
           <div className="space-y-3">
             {priorities.map((priority, index) => (
-              <div key={priority.id} className="flex items-center gap-4 p-4 bg-gray-50 rounded-md">
-                <div className="flex-shrink-0 w-8 h-8 bg-blue-600 text-white rounded-full flex items-center justify-center font-semibold">
+              <div key={priority.id} className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 sm:gap-4 p-3 sm:p-4 bg-gray-50 rounded-md">
+                <div className="flex-shrink-0 w-8 h-8 bg-blue-600 text-white rounded-full flex items-center justify-center font-semibold self-start sm:self-center">
                   {index + 1}
                 </div>
                 <input
@@ -755,12 +757,12 @@ const App: React.FC = () => {
                   type="number"
                   value={priority.yearlyAmount}
                   onChange={(e) => updatePriority(priority.id, 'yearlyAmount', e.target.value)}
-                  className="w-40 px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  className="w-full sm:w-40 px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                   placeholder="Yearly amount"
                 />
                 <button
                   onClick={() => removePriority(priority.id)}
-                  className="px-3 py-2 bg-red-600 text-white rounded-md hover:bg-red-700 transition-colors"
+                  className="w-full sm:w-auto px-3 py-2 bg-red-600 text-white rounded-md hover:bg-red-700 transition-colors"
                 >
                   Remove
                 </button>
@@ -770,21 +772,23 @@ const App: React.FC = () => {
         </div>
 
         {/* Allocation Matrix */}
-        <div className="bg-white rounded-lg shadow-lg p-6">
-          <h2 className="text-xl font-semibold text-gray-800 mb-4">Monthly Allocation Matrix</h2>
+        <div className="bg-white rounded-lg shadow-lg p-4 sm:p-6">
+          <h2 className="text-lg sm:text-xl font-semibold text-gray-800 mb-4">Monthly Allocation Matrix</h2>
           
-          <div className="overflow-x-auto">
-            <table className="w-full border-collapse">
+          <div className="overflow-x-auto -mx-4 sm:mx-0">
+          <div className="inline-block min-w-full align-middle">
+          <div className="overflow-hidden">
+            <table className="w-full border-collapse min-w-[800px]">
               <thead>
                 <tr className="bg-gradient-to-r from-blue-600 to-blue-700">
-                  <th className="px-4 py-3 text-left text-sm font-semibold text-white border border-blue-500">Priority</th>
+                  <th className="px-2 sm:px-4 py-2 sm:py-3 text-left text-xs sm:text-sm font-semibold text-white border border-blue-500">Priority</th>
                   {Array.from({ length: numMonths }, (_, i) => (
-                    <th key={i} className="px-4 py-3 text-center text-sm font-semibold text-white border border-blue-500">
+                    <th key={i} className="px-2 sm:px-4 py-2 sm:py-3 text-center text-xs sm:text-sm font-semibold text-white border border-blue-500">
                       {getMonthLabel(i)}
                     </th>
                   ))}
-                  <th className="px-4 py-3 text-center text-sm font-semibold text-white border border-blue-500">Total</th>
-                  <th className="px-4 py-3 text-center text-sm font-semibold text-white border border-blue-500">Needed</th>
+                  <th className="px-2 sm:px-4 py-2 sm:py-3 text-center text-xs sm:text-sm font-semibold text-white border border-blue-500">Total</th>
+                  <th className="px-2 sm:px-4 py-2 sm:py-3 text-center text-xs sm:text-sm font-semibold text-white border border-blue-500">Needed</th>
                 </tr>
               </thead>
               <tbody>
@@ -795,7 +799,7 @@ const App: React.FC = () => {
                   
                   return (
                     <tr key={priority.id} className={`hover:bg-gray-50 transition-colors ${priority.isHealthInsurance ? 'bg-cyan-50' : ''}`}>
-                      <td className={`px-4 py-3 text-sm font-medium border border-gray-200 ${priority.isHealthInsurance ? 'text-cyan-900 bg-cyan-100' : 'text-gray-900 bg-gray-50'}`}>
+                      <td className={`px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium border border-gray-200 ${priority.isHealthInsurance ? 'text-cyan-900 bg-cyan-100' : 'text-gray-900 bg-gray-50'}`}>
                         {priority.name}
                         {priority.isHealthInsurance && <span className="ml-2 text-xs text-cyan-600">🏥</span>}
                       </td>
@@ -824,41 +828,43 @@ const App: React.FC = () => {
                         }
                         
                         return (
-                          <td key={monthIndex} className={`px-4 py-3 text-center text-sm border border-gray-200 ${bgColor} ${textColor}`}>
+                          <td key={monthIndex} className={`px-2 sm:px-4 py-2 sm:py-3 text-center text-xs sm:text-sm border border-gray-200 ${bgColor} ${textColor}`}>
                             {value === 0 ? '—' : value.toFixed(2)}
                           </td>
                         );
                       })}
-                      <td className={`px-4 py-3 text-center text-sm font-bold border border-gray-200 ${
+                      <td className={`px-2 sm:px-4 py-2 sm:py-3 text-center text-xs sm:text-sm font-bold border border-gray-200 ${
                         fundingRatio >= 0.9999 ? 'bg-green-100 text-green-800' : 
                         fundingRatio > 0 ? 'bg-red-100 text-red-800' : 
                         'bg-gray-100 text-gray-500'
                       }`}>
                         {rowTotal === 0 ? '—' : rowTotal.toFixed(2)}
                       </td>
-                      <td className={`px-4 py-3 text-center text-sm font-medium border border-gray-200 ${priority.isHealthInsurance ? 'bg-cyan-50 text-cyan-900' : 'text-gray-700 bg-gray-50'}`}>
+                      <td className={`px-2 sm:px-4 py-2 sm:py-3 text-center text-xs sm:text-sm font-medium border border-gray-200 ${priority.isHealthInsurance ? 'bg-cyan-50 text-cyan-900' : 'text-gray-700 bg-gray-50'}`}>
                         {needed === 0 ? '—' : needed.toFixed(2)}
                       </td>
                     </tr>
                   );
                 })}
                 <tr className="bg-gradient-to-r from-amber-50 to-amber-100 font-semibold">
-                  <td className="px-4 py-3 text-sm text-gray-900 border border-gray-200">Surplus</td>
+                  <td className="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm text-gray-900 border border-gray-200">Surplus</td>
                   {calculateAllocation.surplusPerMonth.map((surplus, i) => (
-                    <td key={i} className="px-4 py-3 text-center text-sm text-amber-800 border border-gray-200">
+                    <td key={i} className="px-2 sm:px-4 py-2 sm:py-3 text-center text-xs sm:text-sm text-amber-800 border border-gray-200">
                       {surplus === 0 ? '—' : surplus.toFixed(2)}
                     </td>
                   ))}
-                  <td className="px-4 py-3 text-center text-sm text-amber-900 border border-gray-200 font-bold">
+                  <td className="px-2 sm:px-4 py-2 sm:py-3 text-center text-xs sm:text-sm text-amber-900 border border-gray-200 font-bold">
                     {totalSurplus === 0 ? '—' : totalSurplus.toFixed(2)}
                   </td>
-                  <td className="px-4 py-3 text-center text-sm border border-gray-200">—</td>
+                  <td className="px-2 sm:px-4 py-2 sm:py-3 text-center text-xs sm:text-sm border border-gray-200">—</td>
                 </tr>
               </tbody>
             </table>
           </div>
+          </div>
+          </div>
           
-          <div className="mt-4 flex items-center gap-6 text-sm">
+          <div className="mt-4 flex flex-wrap items-center gap-3 sm:gap-6 text-xs sm:text-sm px-4 sm:px-0">
             <div className="flex items-center gap-2">
               <div className="w-4 h-4 bg-green-100 border border-green-200 rounded"></div>
               <span className="text-gray-600">Fully funded</span>
@@ -874,6 +880,15 @@ const App: React.FC = () => {
           </div>
         </div>
       </div>
+
+      {/* Footer */}
+      <footer className="max-w-7xl mx-auto mt-6 sm:mt-8 pb-4 sm:pb-6">
+        <div className="bg-white rounded-lg shadow-md p-3 sm:p-4 text-center">
+          <p className="text-sm text-gray-600">
+            Created with the invaluable help of <strong className="text-gray-800">Ana Pereira</strong> and <strong className="text-gray-800">Florbela Tavares</strong>
+          </p>
+        </div>
+      </footer>
     </div>
   );
 };
