@@ -100,6 +100,7 @@ const App: React.FC = () => {
   const [dependentsUnder25, setDependentsUnder25] = useState<number>(initialState.dependentsUnder25);
   const [dependents25Plus, setDependents25Plus] = useState<number>(initialState.dependents25Plus);
   const [priorities, setPriorities] = useState<Priority[]>(initialState.priorities);
+  const [draggedItem, setDraggedItem] = useState<number | null>(null);
 
   // Save to localStorage whenever state changes (showDisclaimer excluded - always shows on load)
   useEffect(() => {
@@ -299,6 +300,27 @@ const App: React.FC = () => {
     setPriorities(priorities.map(p => 
       p.id === id ? { ...p, [field]: field === 'yearlyAmount' ? parseFloat(value as string) || 0 : value } : p
     ));
+  };
+
+  const handleDragStart = (index: number): void => {
+    setDraggedItem(index);
+  };
+
+  const handleDragOver = (e: React.DragEvent, index: number): void => {
+    e.preventDefault();
+    if (draggedItem === null || draggedItem === index) return;
+    
+    const newPriorities = [...priorities];
+    const draggedPriority = newPriorities[draggedItem];
+    newPriorities.splice(draggedItem, 1);
+    newPriorities.splice(index, 0, draggedPriority);
+    
+    setPriorities(newPriorities);
+    setDraggedItem(index);
+  };
+
+  const handleDragEnd = (): void => {
+    setDraggedItem(null);
   };
 
   const totalSurplus: number = calculateAllocation.surplusPerMonth.reduce((sum, val) => sum + val, 0);
@@ -830,10 +852,26 @@ const App: React.FC = () => {
           
           <div className="space-y-3">
             {priorities.map((priority, index) => (
-              <div key={priority.id} className="flex flex-col gap-3 p-3 sm:p-4 bg-gray-50 rounded-md">
+              <div 
+                key={priority.id} 
+                className={`flex flex-col gap-3 p-3 sm:p-4 rounded-md transition-all cursor-move ${
+                  draggedItem === index ? 'bg-blue-100 opacity-50 scale-95' : 'bg-gray-50 hover:bg-gray-100'
+                }`}
+                draggable
+                onDragStart={() => handleDragStart(index)}
+                onDragOver={(e) => handleDragOver(e, index)}
+                onDragEnd={handleDragEnd}
+              >
                 <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 sm:gap-4">
-                  <div className="flex-shrink-0 w-8 h-8 bg-blue-600 text-white rounded-full flex items-center justify-center font-semibold self-start sm:self-center" title={priority.note || ''}>
-                    {index + 1}
+                  <div className="flex items-center gap-2">
+                    <div className="flex-shrink-0 cursor-grab active:cursor-grabbing text-gray-400 hover:text-gray-600" title="Drag to reorder">
+                      <svg width="20" height="20" viewBox="0 0 20 20" fill="currentColor">
+                        <path d="M7 2a2 2 0 1 0 .001 4.001A2 2 0 0 0 7 2zm0 6a2 2 0 1 0 .001 4.001A2 2 0 0 0 7 8zm0 6a2 2 0 1 0 .001 4.001A2 2 0 0 0 7 14zm6-8a2 2 0 1 0-.001-4.001A2 2 0 0 0 13 6zm0 2a2 2 0 1 0 .001 4.001A2 2 0 0 0 13 8zm0 6a2 2 0 1 0 .001 4.001A2 2 0 0 0 13 14z"/>
+                      </svg>
+                    </div>
+                    <div className="flex-shrink-0 w-8 h-8 bg-blue-600 text-white rounded-full flex items-center justify-center font-semibold" title={priority.note || ''}>
+                      {index + 1}
+                    </div>
                   </div>
                   <input
                     type="text"
