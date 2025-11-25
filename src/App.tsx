@@ -420,12 +420,15 @@ const App: React.FC = () => {
               <label className="block text-sm font-medium text-gray-700 mb-2">
                 Total Budget
               </label>
-              <input
-                type="number"
-                value={totalBudget}
-                onChange={(e) => setTotalBudget(parseFloat(e.target.value) || 0)}
-                className="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-              />
+              <div className="relative">
+                <input
+                  type="number"
+                  value={totalBudget}
+                  onChange={(e) => setTotalBudget(parseFloat(e.target.value) || 0)}
+                  className="w-full px-4 py-2 pr-8 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                />
+                <span className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500">€</span>
+              </div>
               <p className="mt-1 text-sm text-gray-500">
                 Monthly allowance: {monthlyAllowance.toFixed(2)} ({totalBudget} ÷ {numMonths})
               </p>
@@ -520,52 +523,64 @@ const App: React.FC = () => {
                       Fixed credits
                       <span className="text-gray-400 cursor-help" title="Base annual budget allocation">ℹ</span>
                     </label>
-                    <input
-                      type="number"
-                      step="0.01"
-                      value={totalBudget}
-                      onChange={(e) => setTotalBudget(parseFloat(e.target.value) || 0)}
-                      className="w-full sm:w-32 px-3 py-1 text-right border border-gray-300 rounded focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                    />
+                    <div className="relative w-full sm:w-32">
+                      <input
+                        type="number"
+                        step="0.01"
+                        value={totalBudget}
+                        onChange={(e) => setTotalBudget(parseFloat(e.target.value) || 0)}
+                        className="w-full px-3 py-1 pr-6 text-right border border-gray-300 rounded focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                      />
+                      <span className="absolute right-2 top-1/2 -translate-y-1/2 text-gray-500 text-sm">€</span>
+                    </div>
                   </div>
                   <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2">
                     <label className="text-sm text-gray-400 flex items-center gap-1">
                       Variable credits (bonus)
                       <span className="text-gray-400 cursor-help" title="Not yet implemented">ℹ</span>
                     </label>
-                    <input
-                      type="number"
-                      step="0.01"
-                      value={0}
-                      disabled
-                      className="w-full sm:w-32 px-3 py-1 text-right border border-gray-300 rounded bg-gray-100 text-gray-400"
-                    />
+                    <div className="relative w-full sm:w-32">
+                      <input
+                        type="number"
+                        step="0.01"
+                        value={0}
+                        disabled
+                        className="w-full px-3 py-1 pr-6 text-right border border-gray-300 rounded bg-gray-100 text-gray-400"
+                      />
+                      <span className="absolute right-2 top-1/2 -translate-y-1/2 text-gray-400 text-sm">€</span>
+                    </div>
                   </div>
                   <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2">
                     <label className="text-sm text-gray-400 flex items-center gap-1">
                       Car allowance (current year)
                       <span className="text-gray-400 cursor-help" title="Not yet implemented">ℹ</span>
                     </label>
-                    <input
-                      type="number"
-                      step="0.01"
-                      value={0}
-                      disabled
-                      className="w-full sm:w-32 px-3 py-1 text-right border border-gray-300 rounded bg-gray-100 text-gray-400"
-                    />
+                    <div className="relative w-full sm:w-32">
+                      <input
+                        type="number"
+                        step="0.01"
+                        value={0}
+                        disabled
+                        className="w-full px-3 py-1 pr-6 text-right border border-gray-300 rounded bg-gray-100 text-gray-400"
+                      />
+                      <span className="absolute right-2 top-1/2 -translate-y-1/2 text-gray-400 text-sm">€</span>
+                    </div>
                   </div>
                   <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2">
                     <label className="text-sm text-gray-400 flex items-center gap-1">
                       Remaining credits (previous year)
                       <span className="text-gray-400 cursor-help" title="Not yet implemented">ℹ</span>
                     </label>
-                    <input
-                      type="number"
-                      step="0.01"
-                      value={0}
-                      disabled
-                      className="w-full sm:w-32 px-3 py-1 text-right border border-gray-300 rounded bg-gray-100 text-gray-400"
-                    />
+                    <div className="relative w-full sm:w-32">
+                      <input
+                        type="number"
+                        step="0.01"
+                        value={0}
+                        disabled
+                        className="w-full px-3 py-1 pr-6 text-right border border-gray-300 rounded bg-gray-100 text-gray-400"
+                      />
+                      <span className="absolute right-2 top-1/2 -translate-y-1/2 text-gray-400 text-sm">€</span>
+                    </div>
                   </div>
                   
                   <div className="pt-2 mt-2 border-t-2 border-gray-300">
@@ -796,13 +811,16 @@ const App: React.FC = () => {
                   className="flex-1 px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                   placeholder="Priority name"
                 />
-                <input
-                  type="number"
-                  value={priority.yearlyAmount}
-                  onChange={(e) => updatePriority(priority.id, 'yearlyAmount', e.target.value)}
-                  className="w-full sm:w-40 px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                  placeholder="Yearly amount"
-                />
+                <div className="relative w-full sm:w-40">
+                  <input
+                    type="number"
+                    value={priority.yearlyAmount}
+                    onChange={(e) => updatePriority(priority.id, 'yearlyAmount', e.target.value)}
+                    className="w-full px-4 py-2 pr-8 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    placeholder="Yearly amount"
+                  />
+                  <span className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500">€</span>
+                </div>
                 <button
                   onClick={() => removePriority(priority.id)}
                   className="w-full sm:w-auto px-3 py-2 bg-red-600 text-white rounded-md hover:bg-red-700 transition-colors"
