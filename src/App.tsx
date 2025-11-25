@@ -28,6 +28,7 @@ interface AppState {
   totalBudget: number;
   numMonths: number;
   customMonths: boolean;
+  startInDecember: boolean;
   carAllowance: number;
   healthPlan: HealthPlanType;
   employeeIncluded: boolean;
@@ -49,10 +50,11 @@ interface HealthInsuranceCosts {
 
 // Default values
 const defaults: AppState = {
-  showDisclaimer: true,
+  showDisclaimer: false, // Not persisted - always shown on load
   totalBudget: 575,
   numMonths: 12,
   customMonths: false,
+  startInDecember: true,
   carAllowance: 0,
   healthPlan: 'standard',
   employeeIncluded: true,
@@ -84,11 +86,12 @@ const App: React.FC = () => {
 
   const initialState = loadState();
 
-  const [showDisclaimer, setShowDisclaimer] = useState<boolean>(initialState.showDisclaimer);
+  const [showDisclaimer, setShowDisclaimer] = useState<boolean>(true); // Always show on load
   const [showResetConfirm, setShowResetConfirm] = useState<boolean>(false);
   const [totalBudget, setTotalBudget] = useState<number>(initialState.totalBudget);
   const [numMonths, setNumMonths] = useState<number>(initialState.numMonths);
   const [customMonths, setCustomMonths] = useState<boolean>(initialState.customMonths);
+  const [startInDecember, setStartInDecember] = useState<boolean>(initialState.startInDecember);
   const [carAllowance, setCarAllowance] = useState<number>(initialState.carAllowance);
   const [healthPlan, setHealthPlan] = useState<HealthPlanType>(initialState.healthPlan);
   const [employeeIncluded, setEmployeeIncluded] = useState<boolean>(initialState.employeeIncluded);
@@ -97,13 +100,14 @@ const App: React.FC = () => {
   const [dependents25Plus, setDependents25Plus] = useState<number>(initialState.dependents25Plus);
   const [priorities, setPriorities] = useState<Priority[]>(initialState.priorities);
 
-  // Save to localStorage whenever state changes
+  // Save to localStorage whenever state changes (showDisclaimer excluded - always shows on load)
   useEffect(() => {
     const stateToSave: AppState = {
-      showDisclaimer,
+      showDisclaimer: false, // Not persisted
       totalBudget,
       numMonths,
       customMonths,
+      startInDecember,
       carAllowance,
       healthPlan,
       employeeIncluded,
@@ -117,7 +121,7 @@ const App: React.FC = () => {
     } catch (e) {
       console.error('Error saving state:', e);
     }
-  }, [showDisclaimer, totalBudget, numMonths, customMonths, carAllowance, healthPlan, 
+  }, [totalBudget, numMonths, customMonths, startInDecember, carAllowance, healthPlan, 
       employeeIncluded, spouseIncluded, dependentsUnder25, dependents25Plus, priorities]);
 
   // Reset function
@@ -125,6 +129,7 @@ const App: React.FC = () => {
     setTotalBudget(defaults.totalBudget);
     setNumMonths(defaults.numMonths);
     setCustomMonths(defaults.customMonths);
+    setStartInDecember(defaults.startInDecember);
     setCarAllowance(defaults.carAllowance);
     setHealthPlan(defaults.healthPlan);
     setEmployeeIncluded(defaults.employeeIncluded);
@@ -241,6 +246,11 @@ const App: React.FC = () => {
 
   const getMonthLabel = (monthIndex: number): string => {
     if (numMonths === 12) {
+      if (startInDecember) {
+        // December to November: Dec, Jan, Feb, ..., Nov
+        const adjustedIndex = (monthIndex + 11) % 12; // Start from December (index 11)
+        return monthNames[adjustedIndex];
+      }
       return monthNames[monthIndex];
     }
     return `Month ${monthIndex + 1}`;
@@ -423,9 +433,9 @@ const App: React.FC = () => {
               <div className="relative">
                 <input
                   type="number"
-                  value={totalBudget}
+                  value={totalBudget === 0 ? '' : totalBudget}
                   onChange={(e) => setTotalBudget(parseFloat(e.target.value) || 0)}
-                  className="w-full px-4 py-2 pr-8 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  className="w-full px-4 py-2 pr-8 text-right border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                 />
                 <span className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500">€</span>
               </div>
@@ -460,6 +470,24 @@ const App: React.FC = () => {
                   />
                 </div>
               )}
+            </div>
+
+            <div>
+              <label className="flex items-center space-x-2 cursor-pointer">
+                <input
+                  type="checkbox"
+                  checked={startInDecember}
+                  onChange={(e) => {
+                    setStartInDecember(e.target.checked);
+                    if (e.target.checked) {
+                      setNumMonths(12);
+                      setCustomMonths(false);
+                    }
+                  }}
+                  className="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
+                />
+                <span className="text-sm font-medium text-gray-700">Start in December (Dec - Nov next year)</span>
+              </label>
             </div>
           </div>
 
@@ -527,7 +555,7 @@ const App: React.FC = () => {
                       <input
                         type="number"
                         step="0.01"
-                        value={totalBudget}
+                        value={totalBudget === 0 ? '' : totalBudget}
                         onChange={(e) => setTotalBudget(parseFloat(e.target.value) || 0)}
                         className="w-full px-3 py-1 pr-6 text-right border border-gray-300 rounded focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                       />
@@ -672,7 +700,7 @@ const App: React.FC = () => {
                       <input
                         type="number"
                         min="0"
-                        value={dependentsUnder25}
+                        value={dependentsUnder25 === 0 ? '' : dependentsUnder25}
                         onChange={(e) => setDependentsUnder25(parseInt(e.target.value) || 0)}
                         className="w-full px-3 py-1 border border-gray-300 rounded focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                       />
@@ -687,7 +715,7 @@ const App: React.FC = () => {
                     <input
                       type="number"
                       min="0"
-                      value={dependents25Plus}
+                      value={dependents25Plus === 0 ? '' : dependents25Plus}
                       onChange={(e) => setDependents25Plus(parseInt(e.target.value) || 0)}
                       className="w-full px-3 py-1 border border-gray-300 rounded focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                     />
@@ -814,9 +842,9 @@ const App: React.FC = () => {
                 <div className="relative w-full sm:w-40">
                   <input
                     type="number"
-                    value={priority.yearlyAmount}
+                    value={priority.yearlyAmount === 0 ? '' : priority.yearlyAmount}
                     onChange={(e) => updatePriority(priority.id, 'yearlyAmount', e.target.value)}
-                    className="w-full px-4 py-2 pr-8 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    className="w-full px-4 py-2 pr-8 text-right border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                     placeholder="Yearly amount"
                   />
                   <span className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500">€</span>
