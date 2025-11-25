@@ -169,6 +169,46 @@ const App: React.FC = () => {
     window.print();
   };
 
+  const handleAutoBalanceLast = (): void => {
+    // Calculate total requested amount from all priorities
+    const totalRequested = allPriorities.reduce((sum, p) => sum + p.yearlyAmount, 0);
+    const totalAvailable = effectiveBudget;
+    const difference = totalAvailable - totalRequested;
+
+    if (Math.abs(difference) < 0.01) {
+      return; // Already balanced
+    }
+
+    const updatedPriorities = [...priorities];
+    let remainingAdjustment = difference;
+
+    // Work backwards through user priorities (not health insurance) with value > 0
+    for (let i = updatedPriorities.length - 1; i >= 0 && Math.abs(remainingAdjustment) > 0.01; i--) {
+      if (updatedPriorities[i].yearlyAmount > 0) {
+        const currentAmount = updatedPriorities[i].yearlyAmount;
+        const newAmount = currentAmount + remainingAdjustment;
+
+        if (newAmount >= 0) {
+          // This priority can absorb all remaining adjustment
+          updatedPriorities[i] = {
+            ...updatedPriorities[i],
+            yearlyAmount: Number(newAmount.toFixed(2))
+          };
+          remainingAdjustment = 0;
+        } else {
+          // This priority can only be reduced to 0, continue to next priority
+          updatedPriorities[i] = {
+            ...updatedPriorities[i],
+            yearlyAmount: 0
+          };
+          remainingAdjustment = newAmount; // Carry over the remaining negative amount
+        }
+      }
+    }
+
+    setPriorities(updatedPriorities);
+  };
+
   return (
     <div className="min-h-screen bg-gray-50 p-4 sm:p-6 lg:p-8">
       <PrintDisclaimer />
@@ -247,6 +287,7 @@ const App: React.FC = () => {
           getMonthLabel={getMonthLabel}
           calculateAllocation={calculateAllocation}
           totalSurplus={totalSurplus}
+          onAutoBalanceLast={handleAutoBalanceLast}
         />
       </div>
 

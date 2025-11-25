@@ -10,6 +10,7 @@ interface AllocationMatrixProps {
     surplusPerMonth: number[];
   };
   totalSurplus: number;
+  onAutoBalanceLast?: () => void;
 }
 
 export const AllocationMatrix: React.FC<AllocationMatrixProps> = ({
@@ -17,11 +18,28 @@ export const AllocationMatrix: React.FC<AllocationMatrixProps> = ({
   numMonths,
   getMonthLabel,
   calculateAllocation,
-  totalSurplus
+  totalSurplus,
+  onAutoBalanceLast
 }) => {
   return (
     <div className="bg-white rounded-lg shadow-lg p-4 sm:p-6 page-break-before">
-      <h2 className="text-lg sm:text-xl font-semibold text-gray-800 mb-4">Monthly Allocation Matrix</h2>
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 mb-4">
+        <h2 className="text-lg sm:text-xl font-semibold text-gray-800">Monthly Allocation Matrix</h2>
+        {onAutoBalanceLast && (
+          <button
+            onClick={onAutoBalanceLast}
+            className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium rounded-lg shadow-sm transition-colors duration-200 flex items-center gap-2 print:hidden"
+            title={totalSurplus > 0 
+              ? "Automatically adjust the last priority with value > 0 to use the remaining surplus" 
+              : totalSurplus < 0
+              ? "Automatically reduce priorities from bottom to top to fit within the available budget"
+              : "Budget is already balanced"}
+          >
+            <span>⚖️</span>
+            <span>Auto-Balance</span>
+          </button>
+        )}
+      </div>
       
       <div className="overflow-x-auto -mx-4 sm:mx-0 allocation-matrix-container">
         <div className="inline-block min-w-full align-middle">
