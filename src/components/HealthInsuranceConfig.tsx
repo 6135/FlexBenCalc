@@ -2,6 +2,14 @@ import React from 'react';
 import { HealthPlanType, HealthInsuranceCosts } from '../types';
 import { pricingTable } from '../constants';
 
+const InfoIcon: React.FC<{ title: string }> = ({ title }) => (
+  <span className="inline-flex items-center justify-center cursor-help" title={title}>
+    <svg className="w-4 h-4 text-gray-500" fill="currentColor" viewBox="0 0 20 20">
+      <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clipRule="evenodd" />
+    </svg>
+  </span>
+);
+
 interface HealthInsuranceConfigProps {
   healthPlan: HealthPlanType;
   employeeIncluded: boolean;
@@ -58,7 +66,7 @@ export const HealthInsuranceConfig: React.FC<HealthInsuranceConfigProps> = ({
             <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2">
               <label className="text-sm text-gray-700 flex items-center gap-1">
                 Fixed credits
-                <span className="text-gray-400 cursor-help" title="Base annual budget allocation">ℹ</span>
+                <InfoIcon title="Base annual budget allocation" />
               </label>
               <div className="relative w-full sm:w-32">
                 <input
@@ -74,7 +82,7 @@ export const HealthInsuranceConfig: React.FC<HealthInsuranceConfigProps> = ({
             <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2">
               <label className="text-sm text-gray-400 flex items-center gap-1">
                 Variable credits (bonus)
-                <span className="text-gray-400 cursor-help" title="Not yet implemented">ℹ</span>
+                <InfoIcon title="Not yet implemented" />
               </label>
               <div className="relative w-full sm:w-32">
                 <input
@@ -90,7 +98,7 @@ export const HealthInsuranceConfig: React.FC<HealthInsuranceConfigProps> = ({
             <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2">
               <label className="text-sm text-gray-400 flex items-center gap-1">
                 Car allowance (current year)
-                <span className="text-gray-400 cursor-help" title="Not yet implemented">ℹ</span>
+                <InfoIcon title="Not yet implemented" />
               </label>
               <div className="relative w-full sm:w-32">
                 <input
@@ -106,7 +114,7 @@ export const HealthInsuranceConfig: React.FC<HealthInsuranceConfigProps> = ({
             <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2">
               <label className="text-sm text-gray-400 flex items-center gap-1">
                 Remaining credits (previous year)
-                <span className="text-gray-400 cursor-help" title="Not yet implemented">ℹ</span>
+                <InfoIcon title="Not yet implemented" />
               </label>
               <div className="relative w-full sm:w-32">
                 <input
@@ -124,7 +132,7 @@ export const HealthInsuranceConfig: React.FC<HealthInsuranceConfigProps> = ({
               <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2 mb-3">
                 <span className="text-base font-semibold text-gray-900 flex items-center gap-1">
                   Total Available Credits
-                  <span className="text-gray-400 cursor-help" title="Sum of all available credits">ℹ</span>
+                  <InfoIcon title="Sum of all available credits" />
                 </span>
                 <div className="w-full sm:w-40">
                   <div className="px-4 py-2 border-2 border-green-500 bg-green-50 rounded text-right font-bold text-green-700 text-lg">
@@ -162,7 +170,7 @@ export const HealthInsuranceConfig: React.FC<HealthInsuranceConfigProps> = ({
               <div>
                 <label className="text-sm text-gray-700 block mb-1 flex items-center gap-1">
                   Plan
-                  <span className="text-gray-400 cursor-help" title="Select insurance plan tier">ℹ</span>
+                  <InfoIcon title="Select insurance plan tier" />
                 </label>
                 <select 
                   value={healthPlan}
@@ -177,7 +185,7 @@ export const HealthInsuranceConfig: React.FC<HealthInsuranceConfigProps> = ({
               <div>
                 <label className="text-sm text-gray-700 block mb-1 flex items-center gap-1">
                   Employee included?
-                  <span className="text-gray-400 cursor-help" title="Include employee in health insurance">ℹ</span>
+                  <InfoIcon title="Include employee in health insurance" />
                 </label>
                 <select 
                   value={employeeIncluded ? 'yes' : 'no'}
@@ -194,7 +202,7 @@ export const HealthInsuranceConfig: React.FC<HealthInsuranceConfigProps> = ({
               <div>
                 <label className="text-sm text-gray-700 block mb-1 flex items-center gap-1">
                   Spouse included?
-                  <span className="text-gray-400 cursor-help" title="Include spouse in health insurance">ℹ</span>
+                  <InfoIcon title="Include spouse in health insurance" />
                 </label>
                 <select 
                   value={spouseIncluded ? 'yes' : 'no'}
@@ -208,7 +216,7 @@ export const HealthInsuranceConfig: React.FC<HealthInsuranceConfigProps> = ({
               <div>
                 <label className="text-sm text-gray-700 block mb-1 flex items-center gap-1">
                   # Dependents (&lt;25)
-                  <span className="text-gray-400 cursor-help" title="Number of dependents under 25 years old">ℹ</span>
+                  <InfoIcon title="Number of dependents under 25 years old" />
                 </label>
                 <input
                   type="number"
@@ -223,7 +231,7 @@ export const HealthInsuranceConfig: React.FC<HealthInsuranceConfigProps> = ({
             <div>
               <label className="text-sm text-gray-700 block mb-1 flex items-center gap-1">
                 # Dependents (&gt;=25)
-                <span className="text-gray-400 cursor-help" title="Number of dependents 25 years or older">ℹ</span>
+                <InfoIcon title="Number of dependents 25 years or older" />
               </label>
               <input
                 type="number"
@@ -257,21 +265,21 @@ export const HealthInsuranceConfig: React.FC<HealthInsuranceConfigProps> = ({
               <div className="flex justify-between font-semibold">
                 <span className="text-sm text-gray-900 flex items-center gap-1">
                   Total Health Insurance Cost
-                  <span className="text-gray-400 cursor-help" title="Sum of all selected insurance costs">ℹ</span>
+                  <InfoIcon title="Sum of all selected insurance costs" />
                 </span>
                 <span className="text-gray-900">{healthInsuranceCosts.totalCost.toFixed(2)} €</span>
               </div>
               <div className="flex justify-between text-sm bg-gray-100 px-2 py-1 rounded">
                 <span className="text-gray-700 flex items-center gap-1">
                   Company contribution
-                  <span className="text-gray-400 cursor-help" title="100% of standard employee plan + 50% of standard plan for family members">ℹ</span>
+                  <InfoIcon title="100% of standard employee plan + 50% of standard plan for family members" />
                 </span>
                 <span className="font-semibold">{healthInsuranceCosts.companyContribution.toFixed(2)} €</span>
               </div>
               <div className="flex justify-between text-sm bg-red-50 px-2 py-1 rounded">
                 <span className="text-gray-700 flex items-center gap-1">
                   Employee contribution (from credits)
-                  <span className="text-gray-400 cursor-help" title="Remaining cost deducted from flexible credits (negative = credit added)">ℹ</span>
+                  <InfoIcon title="Remaining cost deducted from flexible credits (negative = credit added)" />
                 </span>
                 <span className={`font-semibold ${healthInsuranceCosts.employeeContribution >= 0 ? 'text-red-700' : 'text-green-700'}`}>
                   {healthInsuranceCosts.employeeContribution.toFixed(2)} €
