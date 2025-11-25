@@ -124,6 +124,17 @@ export const HealthInsuranceConfig: React.FC<HealthInsuranceConfigProps> = ({
               </div>
             )}
             
+            <div className="mt-4 p-3 bg-blue-50 border-2 border-blue-300 rounded">
+              <div className="flex justify-between items-center mb-2">
+                <span className="text-sm font-semibold text-blue-900">Total Available Credits</span>
+                <span className="text-lg font-bold text-blue-900">{(totalBudget + (healthInsuranceCosts.employeeContribution < 0 ? Math.abs(healthInsuranceCosts.employeeContribution) : 0)).toFixed(2)} €</span>
+              </div>
+              <div className="flex justify-between items-center text-xs text-blue-700">
+                <span>Monthly distributable value</span>
+                <span className="font-semibold">{((totalBudget + (healthInsuranceCosts.employeeContribution < 0 ? Math.abs(healthInsuranceCosts.employeeContribution) : 0)) / 12).toFixed(2)} €</span>
+              </div>
+            </div>
+            
             <div className="mt-4 p-3 bg-blue-50 border border-blue-200 rounded text-xs text-blue-800">
               <strong>Note:</strong> Health insurance costs are now included as priorities in the allocation table below. Any upgrade beyond standard plan or family member coverage will appear as a separate priority line.
             </div>
