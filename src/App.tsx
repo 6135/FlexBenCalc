@@ -147,22 +147,24 @@ const App: React.FC = () => {
     const selectedPrices = pricingTable[healthPlan];
     const insurancePriorities: Priority[] = [];
     
-    // Employee upgrade cost (if upgraded beyond standard)
-    if (employeeIncluded && healthPlan !== 'standard') {
-      const upgradeCost = selectedPrices.employee - standardPrices.employee;
-      if (upgradeCost > 0) {
+    // Employee cost - employee pays: full cost - 50% of selected plan (or 50% of standard if upgrade)
+    if (employeeIncluded) {
+      const companyPays = healthPlan === 'upgrade' ? standardPrices.employee * 0.5 : selectedPrices.employee * 0.5;
+      const employeePays = selectedPrices.employee - companyPays;
+      if (employeePays > 0) {
         insurancePriorities.push({
           id: -1,
-          name: `Health Insurance - Employee (${healthPlan} upgrade)`,
-          yearlyAmount: upgradeCost,
+          name: `Health Insurance - Employee (${healthPlan})`,
+          yearlyAmount: employeePays,
           isHealthInsurance: true
         });
       }
     }
     
-    // Spouse cost - employee pays: full cost - 50% of standard
+    // Spouse cost - employee pays: full cost - 50% of selected plan (or 50% of standard if upgrade)
     if (spouseIncluded) {
-      const spouseCost = selectedPrices.spouse - (standardPrices.spouse * 0.5);
+      const companyPays = healthPlan === 'upgrade' ? standardPrices.spouse * 0.5 : selectedPrices.spouse * 0.5;
+      const spouseCost = selectedPrices.spouse - companyPays;
       insurancePriorities.push({
         id: -2,
         name: `Health Insurance - Spouse (${healthPlan})`,
@@ -171,9 +173,10 @@ const App: React.FC = () => {
       });
     }
     
-    // Dependents under 25 - employee pays: full cost - 50% of standard per dependent
+    // Dependents under 25 - employee pays: full cost - 50% of selected plan per dependent (or 50% of standard if upgrade)
     if (dependentsUnder25 > 0) {
-      const dependentsCost = (dependentsUnder25 * selectedPrices.under25) - (dependentsUnder25 * standardPrices.under25 * 0.5);
+      const companyPaysPerDependent = healthPlan === 'upgrade' ? standardPrices.under25 * 0.5 : selectedPrices.under25 * 0.5;
+      const dependentsCost = (dependentsUnder25 * selectedPrices.under25) - (dependentsUnder25 * companyPaysPerDependent);
       insurancePriorities.push({
         id: -3,
         name: `Health Insurance - ${dependentsUnder25} Dependent(s) <25 (${healthPlan})`,
@@ -182,9 +185,10 @@ const App: React.FC = () => {
       });
     }
     
-    // Dependents 25+ - employee pays: full cost - 50% of standard per dependent
+    // Dependents 25+ - employee pays: full cost - 50% of selected plan per dependent (or 50% of standard if upgrade)
     if (dependents25Plus > 0) {
-      const dependentsCost = (dependents25Plus * selectedPrices.over25) - (dependents25Plus * standardPrices.over25 * 0.5);
+      const companyPaysPerDependent = healthPlan === 'upgrade' ? standardPrices.over25 * 0.5 : selectedPrices.over25 * 0.5;
+      const dependentsCost = (dependents25Plus * selectedPrices.over25) - (dependents25Plus * companyPaysPerDependent);
       insurancePriorities.push({
         id: -4,
         name: `Health Insurance - ${dependents25Plus} Dependent(s) ≥25 (${healthPlan})`,
@@ -214,12 +218,12 @@ const App: React.FC = () => {
     
     const totalCost = employeeValue + spouseValue + dependentsUnder25Value + dependents25PlusValue;
     
-    // Company pays: 100% of standard for employee + 50% of STANDARD (not selected plan) for family
+    // Company pays: 50% of selected plan, except for upgrade where it's 50% of standard
     const companyContribution = 
-      (employeeIncluded ? standardPrices.employee : 0) +
-      (spouseIncluded ? standardPrices.spouse * 0.5 : 0) +
-      (dependentsUnder25 * standardPrices.under25 * 0.5) +
-      (dependents25Plus * standardPrices.over25 * 0.5);
+      (employeeIncluded ? (healthPlan === 'upgrade' ? standardPrices.employee * 0.5 : prices.employee * 0.5) : 0) +
+      (spouseIncluded ? (healthPlan === 'upgrade' ? standardPrices.spouse * 0.5 : prices.spouse * 0.5) : 0) +
+      (dependentsUnder25 * (healthPlan === 'upgrade' ? standardPrices.under25 * 0.5 : prices.under25 * 0.5)) +
+      (dependents25Plus * (healthPlan === 'upgrade' ? standardPrices.over25 * 0.5 : prices.over25 * 0.5));
     
     const employeeContribution = totalCost - companyContribution;
     
