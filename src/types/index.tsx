@@ -24,6 +24,7 @@ export interface PricingTable {
 }
 
 export interface AppState {
+  version?: number; // Version for backward compatibility
   showDisclaimer: boolean;
   totalBudget: number;
   numMonths: number;

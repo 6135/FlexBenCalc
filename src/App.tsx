@@ -13,6 +13,7 @@ import { PriorityList } from './components/PriorityList';
 import { AllocationMatrix } from './components/AllocationMatrix';
 import { Header } from './components/Header';
 import { Footer } from './components/Footer';
+import { migrateConfig, CURRENT_CONFIG_VERSION } from './utils/configMigration';
 
 const App: React.FC = () => {
 
@@ -171,6 +172,7 @@ const App: React.FC = () => {
 
   const handleExport = (): void => {
     const exportData: AppState = {
+      version: CURRENT_CONFIG_VERSION,
       showDisclaimer: false,
       totalBudget,
       numMonths,
@@ -210,9 +212,12 @@ const App: React.FC = () => {
       const reader = new FileReader();
       reader.onload = (event: ProgressEvent<FileReader>) => {
         try {
-          const importedData = JSON.parse(event.target?.result as string) as AppState;
+          const rawData = JSON.parse(event.target?.result as string);
           
-          // Validate and apply imported data
+          // Migrate configuration to current version
+          const importedData = migrateConfig(rawData);
+          
+          // Apply migrated data
           if (importedData.totalBudget !== undefined) setTotalBudget(importedData.totalBudget);
           if (importedData.numMonths !== undefined) setNumMonths(importedData.numMonths);
           if (importedData.customMonths !== undefined) setCustomMonths(importedData.customMonths);
@@ -225,7 +230,12 @@ const App: React.FC = () => {
           if (importedData.dependents25Plus !== undefined) setDependents25Plus(importedData.dependents25Plus);
           if (importedData.priorities !== undefined) setPriorities(importedData.priorities);
           
-          alert('Configuration imported successfully!');
+          const versionMessage = rawData.version 
+            ? rawData.version < CURRENT_CONFIG_VERSION 
+              ? ` (migrated from version ${rawData.version})` 
+              : ''
+            : ' (migrated from version 1)';
+          alert(`Configuration imported successfully${versionMessage}!`);
         } catch (error) {
           console.error('Error importing file:', error);
           alert('Error importing file. Please ensure it is a valid JSON file.');
