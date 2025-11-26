@@ -7,9 +7,9 @@ import { useAllocationCalculations } from './hooks/useAllocationCalculations';
 import { DisclaimerModal } from './components/DisclaimerModal';
 import { ResetConfirmModal } from './components/ResetConfirmModal';
 import { PrintDisclaimer } from './components/PrintDisclaimer';
-import { BudgetConfiguration } from './components/BudgetConfiguration';
+import { BudgetConfiguration } from './components/InitialConfigurator';
 import { SummaryStats } from './components/SummaryStats';
-import { HealthInsuranceConfig } from './components/HealthInsuranceConfig';
+import { HealthInsuranceConfig } from './components/MainConfigurator';
 import { PriorityList } from './components/PriorityList';
 import { AllocationMatrix } from './components/AllocationMatrix';
 import { Header } from './components/Header';
@@ -27,7 +27,17 @@ const App: React.FC = () => {
   const loadState = (): AppState => {
     try {
       const saved = localStorage.getItem('benefitsAllocatorState');
-      return saved ? { ...defaults, ...JSON.parse(saved) } : defaults;
+      if (saved) {
+        const parsed = JSON.parse(saved);
+        // Merge with defaults, ensuring undefined values don't override defaults
+        return {
+          ...defaults,
+          ...Object.fromEntries(
+            Object.entries(parsed).filter(([_, v]) => v !== undefined)
+          )
+        } as AppState;
+      }
+      return defaults;
     } catch (e) {
       console.error('Error loading state:', e);
       return defaults;
@@ -58,6 +68,7 @@ const App: React.FC = () => {
   const [customMonths, setCustomMonths] = useState<boolean>(initialState.customMonths);
   const [startInDecember, setStartInDecember] = useState<boolean>(initialState.startInDecember);
   const [carAllowance, setCarAllowance] = useState<number>(initialState.carAllowance);
+  const [bonus, setBonus] = useState<number>(initialState.bonus);
   const [healthPlan, setHealthPlan] = useState<HealthPlanType>(initialState.healthPlan);
   const [employeeIncluded, setEmployeeIncluded] = useState<boolean>(initialState.employeeIncluded);
   const [spouseIncluded, setSpouseIncluded] = useState<boolean>(initialState.spouseIncluded);
@@ -81,6 +92,7 @@ const App: React.FC = () => {
       customMonths,
       startInDecember,
       carAllowance,
+      bonus,
       healthPlan,
       employeeIncluded,
       spouseIncluded,
@@ -93,7 +105,7 @@ const App: React.FC = () => {
     } catch (e) {
       console.error('Error saving state:', e);
     }
-  }, [totalBudget, numMonths, customMonths, startInDecember, carAllowance, healthPlan, 
+  }, [totalBudget, numMonths, customMonths, startInDecember, carAllowance, bonus, healthPlan, 
       employeeIncluded, spouseIncluded, dependentsUnder25, dependents25Plus, priorities, sharedData, showSharedBanner]);
 
   // Reset function
@@ -103,6 +115,7 @@ const App: React.FC = () => {
     setCustomMonths(defaults.customMonths);
     setStartInDecember(defaults.startInDecember);
     setCarAllowance(defaults.carAllowance);
+    setBonus(defaults.bonus);
     setHealthPlan(defaults.healthPlan);
     setEmployeeIncluded(defaults.employeeIncluded);
     setSpouseIncluded(defaults.spouseIncluded);
@@ -128,11 +141,11 @@ const App: React.FC = () => {
     [healthInsurancePriorities, priorities]
   );
 
-  // Effective budget includes the negative employee contribution (when company owes credits back)
+  // Effective budget includes the negative employee contribution (when company owes credits back) and car allowance
   const effectiveBudget: number = useMemo(() => {
     const creditBack = healthInsuranceCosts.employeeContribution < 0 ? Math.abs(healthInsuranceCosts.employeeContribution) : 0;
-    return totalBudget + creditBack;
-  }, [totalBudget, healthInsuranceCosts.employeeContribution]);
+    return totalBudget + creditBack + carAllowance;
+  }, [totalBudget, healthInsuranceCosts.employeeContribution, carAllowance]);
 
   const monthlyAllowance: number = effectiveBudget / numMonths;
 
@@ -154,7 +167,8 @@ const App: React.FC = () => {
   const { calculateAllocation, totalSurplus } = useAllocationCalculations(
     monthlyAllowance,
     numMonths,
-    allPriorities
+    allPriorities,
+    bonus
   );
 
   const addPriority = (): void => {
@@ -206,6 +220,7 @@ const App: React.FC = () => {
       customMonths,
       startInDecember,
       carAllowance,
+      bonus,
       healthPlan,
       employeeIncluded,
       spouseIncluded,
@@ -250,6 +265,7 @@ const App: React.FC = () => {
           if (importedData.customMonths !== undefined) setCustomMonths(importedData.customMonths);
           if (importedData.startInDecember !== undefined) setStartInDecember(importedData.startInDecember);
           if (importedData.carAllowance !== undefined) setCarAllowance(importedData.carAllowance);
+          if (importedData.bonus !== undefined) setBonus(importedData.bonus);
           if (importedData.healthPlan !== undefined) setHealthPlan(importedData.healthPlan);
           if (importedData.employeeIncluded !== undefined) setEmployeeIncluded(importedData.employeeIncluded);
           if (importedData.spouseIncluded !== undefined) setSpouseIncluded(importedData.spouseIncluded);
@@ -324,6 +340,7 @@ const App: React.FC = () => {
       customMonths,
       startInDecember,
       carAllowance,
+      bonus,
       healthPlan,
       employeeIncluded,
       spouseIncluded,
@@ -345,6 +362,7 @@ const App: React.FC = () => {
       setCustomMonths(sharedState.customMonths);
       setStartInDecember(sharedState.startInDecember);
       setCarAllowance(sharedState.carAllowance);
+      setBonus(sharedState.bonus);
       setHealthPlan(sharedState.healthPlan);
       setEmployeeIncluded(sharedState.employeeIncluded);
       setSpouseIncluded(sharedState.spouseIncluded);
@@ -371,6 +389,7 @@ const App: React.FC = () => {
     setCustomMonths(localData.customMonths);
     setStartInDecember(localData.startInDecember);
     setCarAllowance(localData.carAllowance);
+    setBonus(localData.bonus);
     setHealthPlan(localData.healthPlan);
     setEmployeeIncluded(localData.employeeIncluded);
     setSpouseIncluded(localData.spouseIncluded);
@@ -429,11 +448,15 @@ const App: React.FC = () => {
             numMonths={numMonths}
             customMonths={customMonths}
             startInDecember={startInDecember}
+            carAllowance={carAllowance}
+            bonus={bonus}
             monthlyAllowance={monthlyAllowance}
             onTotalBudgetChange={setTotalBudget}
             onCustomMonthsChange={setCustomMonths}
             onNumMonthsChange={setNumMonths}
             onStartInDecemberChange={setStartInDecember}
+            onCarAllowanceChange={setCarAllowance}
+            onBonusChange={setBonus}
           />
 
           <SummaryStats
@@ -450,6 +473,8 @@ const App: React.FC = () => {
             dependentsUnder25={dependentsUnder25}
             dependents25Plus={dependents25Plus}
             totalBudget={totalBudget}
+            carAllowance={carAllowance}
+            bonus={bonus}
             effectiveBudget={effectiveBudget}
             healthInsuranceCosts={healthInsuranceCosts}
             onHealthPlanChange={setHealthPlan}
@@ -458,6 +483,8 @@ const App: React.FC = () => {
             onDependentsUnder25Change={setDependentsUnder25}
             onDependents25PlusChange={setDependents25Plus}
             onTotalBudgetChange={setTotalBudget}
+            onCarAllowanceChange={setCarAllowance}
+            onBonusChange={setBonus}
           />
         </div>
 
@@ -475,6 +502,7 @@ const App: React.FC = () => {
         <AllocationMatrix
           allPriorities={allPriorities}
           numMonths={numMonths}
+          bonus={bonus}
           getMonthLabel={getMonthLabel}
           calculateAllocation={calculateAllocation}
           totalSurplus={totalSurplus}

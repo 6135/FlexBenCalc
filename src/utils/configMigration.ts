@@ -43,6 +43,7 @@ const validateAndMergeDefaults = (data: any): AppState => {
     customMonths: data.customMonths !== undefined ? data.customMonths : defaults.customMonths,
     startInDecember: data.startInDecember !== undefined ? data.startInDecember : defaults.startInDecember,
     carAllowance: data.carAllowance !== undefined ? data.carAllowance : defaults.carAllowance,
+    bonus: data.bonus !== undefined ? data.bonus : defaults.bonus,
     healthPlan: data.healthPlan !== undefined ? data.healthPlan : defaults.healthPlan,
     employeeIncluded: data.employeeIncluded !== undefined ? data.employeeIncluded : defaults.employeeIncluded,
     spouseIncluded: data.spouseIncluded !== undefined ? data.spouseIncluded : defaults.spouseIncluded,

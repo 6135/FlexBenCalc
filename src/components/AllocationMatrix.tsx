@@ -4,6 +4,7 @@ import { Priority } from '../types';
 interface AllocationMatrixProps {
   allPriorities: Priority[];
   numMonths: number;
+  bonus: number;
   getMonthLabel: (index: number) => string;
   calculateAllocation: {
     matrix: number[][];
@@ -16,6 +17,7 @@ interface AllocationMatrixProps {
 export const AllocationMatrix: React.FC<AllocationMatrixProps> = ({
   allPriorities,
   numMonths,
+  bonus,
   getMonthLabel,
   calculateAllocation,
   totalSurplus,
@@ -40,6 +42,14 @@ export const AllocationMatrix: React.FC<AllocationMatrixProps> = ({
           </button>
         )}
       </div>
+      
+      {bonus > 0 && (
+        <div className="mb-3 p-3 bg-blue-50 border border-blue-200 rounded-md">
+          <p className="text-sm text-blue-800">
+            <strong>💰 Bonus:</strong> {bonus.toFixed(2)} € available in {getMonthLabel(0)} (first month) on top of regular monthly allowance
+          </p>
+        </div>
+      )}
       
       <div className="overflow-x-auto -mx-4 sm:mx-0 allocation-matrix-container">
         <div className="inline-block min-w-full align-middle">

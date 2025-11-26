@@ -17,6 +17,8 @@ interface HealthInsuranceConfigProps {
   dependentsUnder25: number;
   dependents25Plus: number;
   totalBudget: number;
+  carAllowance: number;
+  bonus: number;
   effectiveBudget: number;
   healthInsuranceCosts: HealthInsuranceCosts;
   onHealthPlanChange: (value: HealthPlanType) => void;
@@ -25,6 +27,8 @@ interface HealthInsuranceConfigProps {
   onDependentsUnder25Change: (value: number) => void;
   onDependents25PlusChange: (value: number) => void;
   onTotalBudgetChange: (value: number) => void;
+  onCarAllowanceChange: (value: number) => void;
+  onBonusChange: (value: number) => void;
 }
 
 export const HealthInsuranceConfig: React.FC<HealthInsuranceConfigProps> = ({
@@ -34,6 +38,8 @@ export const HealthInsuranceConfig: React.FC<HealthInsuranceConfigProps> = ({
   dependentsUnder25,
   dependents25Plus,
   totalBudget,
+  carAllowance,
+  bonus,
   effectiveBudget,
   healthInsuranceCosts,
   onHealthPlanChange,
@@ -41,16 +47,15 @@ export const HealthInsuranceConfig: React.FC<HealthInsuranceConfigProps> = ({
   onSpouseIncludedChange,
   onDependentsUnder25Change,
   onDependents25PlusChange,
-  onTotalBudgetChange
+  onTotalBudgetChange,
+  onCarAllowanceChange,
+  onBonusChange
 }) => {
   return (
     <div className="mt-6">
       <div className="flex flex-col lg:flex-row justify-between items-start gap-3 mb-4">
-        <h3 className="text-base sm:text-lg font-semibold text-gray-800">Health Insurance Configuration</h3>
+        <h3 className="text-base sm:text-lg font-semibold text-gray-800">Configurations</h3>
         <div className="flex flex-col gap-2 w-full lg:w-auto">
-          <div className="text-xs text-amber-700 bg-amber-50 px-3 py-1 rounded border border-amber-200">
-            ⚠️ Note: Bonus credits, car allowance, and remaining credits from previous year not yet implemented
-          </div>
           <div className="text-xs text-red-700 bg-red-50 px-3 py-1 rounded border border-red-200 font-semibold">
             ⚠️ WARNING: Spouse and children calculations may be incorrect - verify manually!
           </div>
@@ -80,35 +85,35 @@ export const HealthInsuranceConfig: React.FC<HealthInsuranceConfigProps> = ({
               </div>
             </div>
             <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2">
-              <label className="text-sm text-gray-400 flex items-center gap-1">
+              <label className="text-sm text-gray-700 flex items-center gap-1">
                 Variable credits (bonus)
-                <InfoIcon title="Not yet implemented" />
+                <InfoIcon title="One-time bonus available in first month on top of monthly allowance" />
               </label>
               <div className="relative w-full sm:w-32">
                 <input
                   type="number"
                   step="0.01"
-                  value={0}
-                  disabled
-                  className="w-full px-3 py-1 pr-6 border border-gray-300 rounded bg-gray-100 text-gray-400"
+                  value={bonus === 0 ? '' : bonus}
+                  onChange={(e) => onBonusChange(parseFloat(e.target.value) || 0)}
+                  className="w-full px-3 py-1 pr-6 border border-gray-300 rounded focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                 />
-                <span className="absolute right-2 top-1/2 -translate-y-1/2 text-gray-400 text-sm">€</span>
+                <span className="absolute right-2 top-1/2 -translate-y-1/2 text-gray-500 text-sm">€</span>
               </div>
             </div>
             <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2">
-              <label className="text-sm text-gray-400 flex items-center gap-1">
+              <label className="text-sm text-gray-700 flex items-center gap-1">
                 Car allowance (current year)
-                <InfoIcon title="Not yet implemented" />
+                <InfoIcon title="Yearly car allowance added to fixed credits and divided monthly" />
               </label>
               <div className="relative w-full sm:w-32">
                 <input
                   type="number"
                   step="0.01"
-                  value={0}
-                  disabled
-                  className="w-full px-3 py-1 pr-6 border border-gray-300 rounded bg-gray-100 text-gray-400"
+                  value={carAllowance === 0 ? '' : carAllowance}
+                  onChange={(e) => onCarAllowanceChange(parseFloat(e.target.value) || 0)}
+                  className="w-full px-3 py-1 pr-6 border border-gray-300 rounded focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                 />
-                <span className="absolute right-2 top-1/2 -translate-y-1/2 text-gray-400 text-sm">€</span>
+                <span className="absolute right-2 top-1/2 -translate-y-1/2 text-gray-500 text-sm">€</span>
               </div>
             </div>
             <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2">

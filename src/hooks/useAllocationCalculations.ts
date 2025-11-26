@@ -4,14 +4,16 @@ import { Priority } from '../types';
 export const useAllocationCalculations = (
   monthlyAllowance: number,
   numMonths: number,
-  allPriorities: Priority[]
+  allPriorities: Priority[],
+  bonus: number = 0
 ) => {
   const calculateAllocation = useMemo(() => {
     const matrix: number[][] = [];
     const surplusPerMonth: number[] = [];
     
     for (let month = 0; month < numMonths; month++) {
-      let remainingBudget = monthlyAllowance;
+      // Add bonus to the first month only
+      let remainingBudget = month === 0 ? monthlyAllowance + bonus : monthlyAllowance;
       const monthAllocations: number[] = [];
       
       for (let i = 0; i < allPriorities.length; i++) {
@@ -32,7 +34,7 @@ export const useAllocationCalculations = (
     }
     
     return { matrix, surplusPerMonth };
-  }, [monthlyAllowance, numMonths, allPriorities]);
+  }, [monthlyAllowance, numMonths, allPriorities, bonus]);
 
   const totalSurplus = calculateAllocation.surplusPerMonth.reduce((sum, val) => sum + val, 0);
 

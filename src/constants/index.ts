@@ -8,6 +8,7 @@ export const defaults: AppState = {
   customMonths: false,
   startInDecember: true,
   carAllowance: 0,
+  bonus: 0,
   healthPlan: 'standard',
   employeeIncluded: true,
   spouseIncluded: false,

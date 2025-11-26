@@ -31,6 +31,7 @@ export interface AppState {
   customMonths: boolean;
   startInDecember: boolean;
   carAllowance: number;
+  bonus: number;
   healthPlan: HealthPlanType;
   employeeIncluded: boolean;
   spouseIncluded: boolean;

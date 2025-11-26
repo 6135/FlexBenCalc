@@ -5,11 +5,15 @@ interface BudgetConfigurationProps {
   numMonths: number;
   customMonths: boolean;
   startInDecember: boolean;
+  carAllowance: number;
+  bonus: number;
   monthlyAllowance: number;
   onTotalBudgetChange: (value: number) => void;
   onCustomMonthsChange: (value: boolean) => void;
   onNumMonthsChange: (value: number) => void;
   onStartInDecemberChange: (value: boolean) => void;
+  onCarAllowanceChange: (value: number) => void;
+  onBonusChange: (value: number) => void;
 }
 
 export const BudgetConfiguration: React.FC<BudgetConfigurationProps> = ({
@@ -17,11 +21,15 @@ export const BudgetConfiguration: React.FC<BudgetConfigurationProps> = ({
   numMonths,
   customMonths,
   startInDecember,
+  carAllowance,
+  bonus,
   monthlyAllowance,
   onTotalBudgetChange,
   onCustomMonthsChange,
   onNumMonthsChange,
-  onStartInDecemberChange
+  onStartInDecemberChange,
+  onCarAllowanceChange,
+  onBonusChange
 }) => {
   return (
     <div className="space-y-6 mb-6">
