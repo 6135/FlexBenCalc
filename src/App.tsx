@@ -190,7 +190,8 @@ const App: React.FC = () => {
     const url = URL.createObjectURL(dataBlob);
     const link = document.createElement('a');
     link.href = url;
-    link.download = `flexben-config-${new Date().toISOString().split('T')[0]}.json`;
+    const timestamp = new Date().toISOString().replace(/:/g, '-').replace(/\..+/, '');
+    link.download = `flexben-config-${timestamp}.json`;
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);

@@ -27,6 +27,7 @@ export const PrintDisclaimer: React.FC = () => {
           </div>
         </div>
         <div style={{ borderTop: '2px solid #e5e7eb', paddingTop: '1rem', marginTop: '2rem', textAlign: 'center', color: '#6b7280' }}>
+          <p style={{ marginBottom: '0.5rem' }}>Printed on: {new Date().toLocaleString()}</p>
           <p>Created with the invaluable help of <strong>Ana Pereira</strong> and <strong>Florbela Tavares</strong></p>
         </div>
       </div>
