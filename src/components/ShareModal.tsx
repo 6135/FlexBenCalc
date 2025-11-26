@@ -6,7 +6,11 @@ interface ShareModalProps {
   onClose: () => void;
 }
 
-export const ShareModal: React.FC<ShareModalProps> = ({ show, shareUrl, onClose }) => {
+export const ShareModal: React.FC<ShareModalProps> = ({ 
+  show, 
+  shareUrl, 
+  onClose
+}) => {
   const [copied, setCopied] = useState(false);
 
   if (!show) return null;

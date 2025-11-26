@@ -362,6 +362,26 @@ const App: React.FC = () => {
     setShowSharedBanner(false);
   };
 
+  const handleReturnToMyData = (): void => {
+    // Load data from localStorage
+    const localData = loadState();
+    
+    setTotalBudget(localData.totalBudget);
+    setNumMonths(localData.numMonths);
+    setCustomMonths(localData.customMonths);
+    setStartInDecember(localData.startInDecember);
+    setCarAllowance(localData.carAllowance);
+    setHealthPlan(localData.healthPlan);
+    setEmployeeIncluded(localData.employeeIncluded);
+    setSpouseIncluded(localData.spouseIncluded);
+    setDependentsUnder25(localData.dependentsUnder25);
+    setDependents25Plus(localData.dependents25Plus);
+    setPriorities(localData.priorities);
+    
+    setShowSharedBanner(false);
+    navigate('/');
+  };
+
   return (
     <div className="min-h-screen bg-gray-50 p-4 sm:p-6 lg:p-8">
       <PrintDisclaimer />
@@ -396,6 +416,7 @@ const App: React.FC = () => {
           <SharedConfigBanner
             onImport={handleImportSharedConfig}
             onDismiss={handleDismissSharedBanner}
+            onReturnToMyData={handleReturnToMyData}
           />
         )}
         

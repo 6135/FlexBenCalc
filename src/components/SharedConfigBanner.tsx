@@ -3,9 +3,10 @@ import React from 'react';
 interface SharedConfigBannerProps {
   onImport: () => void;
   onDismiss: () => void;
+  onReturnToMyData: () => void;
 }
 
-export const SharedConfigBanner: React.FC<SharedConfigBannerProps> = ({ onImport, onDismiss }) => {
+export const SharedConfigBanner: React.FC<SharedConfigBannerProps> = ({ onImport, onDismiss, onReturnToMyData }) => {
   return (
     <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-6 shadow-sm">
       <div className="flex items-start gap-3">
@@ -23,6 +24,12 @@ export const SharedConfigBanner: React.FC<SharedConfigBannerProps> = ({ onImport
               className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium text-sm"
             >
               Import This Configuration
+            </button>
+            <button
+              onClick={onReturnToMyData}
+              className="px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors font-medium text-sm"
+            >
+              Return to My Data
             </button>
             <button
               onClick={onDismiss}
