@@ -1,4 +1,5 @@
 import React, { useState, useMemo, useEffect } from 'react';
+import { useParams, useNavigate } from 'react-router-dom';
 import { Priority, HealthPlanType, AppState } from './types';
 import { defaults } from './constants';
 import { useHealthInsuranceCalculations } from './hooks/useHealthInsuranceCalculations';
@@ -13,9 +14,14 @@ import { PriorityList } from './components/PriorityList';
 import { AllocationMatrix } from './components/AllocationMatrix';
 import { Header } from './components/Header';
 import { Footer } from './components/Footer';
+import { ShareModal } from './components/ShareModal';
+import { SharedConfigBanner } from './components/SharedConfigBanner';
 import { migrateConfig, CURRENT_CONFIG_VERSION } from './utils/configMigration';
+import { generateShareUrl, decodeBase64ToState } from './utils/shareUtils';
 
 const App: React.FC = () => {
+  const { sharedData } = useParams<{ sharedData?: string }>();
+  const navigate = useNavigate();
 
   // Load from localStorage or use defaults
   const loadState = (): AppState => {
@@ -28,10 +34,25 @@ const App: React.FC = () => {
     }
   };
 
-  const initialState = loadState();
+  // Load shared state if present in URL
+  const loadSharedState = (): AppState | null => {
+    if (sharedData) {
+      const decodedState = decodeBase64ToState(sharedData);
+      if (decodedState) {
+        return migrateConfig(decodedState);
+      }
+    }
+    return null;
+  };
+
+  const sharedState = loadSharedState();
+  const initialState = sharedState || loadState();
 
   const [showDisclaimer, setShowDisclaimer] = useState<boolean>(true); // Always show on load
   const [showResetConfirm, setShowResetConfirm] = useState<boolean>(false);
+  const [showShareModal, setShowShareModal] = useState<boolean>(false);
+  const [showSharedBanner, setShowSharedBanner] = useState<boolean>(!!sharedState);
+  const [shareUrl, setShareUrl] = useState<string>('');
   const [totalBudget, setTotalBudget] = useState<number>(initialState.totalBudget);
   const [numMonths, setNumMonths] = useState<number>(initialState.numMonths);
   const [customMonths, setCustomMonths] = useState<boolean>(initialState.customMonths);
@@ -46,7 +67,13 @@ const App: React.FC = () => {
   const [draggedItem, setDraggedItem] = useState<number | null>(null);
 
   // Save to localStorage whenever state changes (showDisclaimer excluded - always shows on load)
+  // Don't save if we're viewing a shared configuration
   useEffect(() => {
+    // Don't save to localStorage when viewing shared data
+    if (sharedData && showSharedBanner) {
+      return;
+    }
+
     const stateToSave: AppState = {
       showDisclaimer: false, // Not persisted
       totalBudget,
@@ -67,7 +94,7 @@ const App: React.FC = () => {
       console.error('Error saving state:', e);
     }
   }, [totalBudget, numMonths, customMonths, startInDecember, carAllowance, healthPlan, 
-      employeeIncluded, spouseIncluded, dependentsUnder25, dependents25Plus, priorities]);
+      employeeIncluded, spouseIncluded, dependentsUnder25, dependents25Plus, priorities, sharedData, showSharedBanner]);
 
   // Reset function
   const resetToDefaults = (): void => {
@@ -288,6 +315,53 @@ const App: React.FC = () => {
     setPriorities(updatedPriorities);
   };
 
+  const handleShare = (): void => {
+    const exportData: AppState = {
+      version: CURRENT_CONFIG_VERSION,
+      showDisclaimer: false,
+      totalBudget,
+      numMonths,
+      customMonths,
+      startInDecember,
+      carAllowance,
+      healthPlan,
+      employeeIncluded,
+      spouseIncluded,
+      dependentsUnder25,
+      dependents25Plus,
+      priorities
+    };
+
+    const url = generateShareUrl(exportData);
+    setShareUrl(url);
+    setShowShareModal(true);
+  };
+
+  const handleImportSharedConfig = (): void => {
+    // Import the shared config into localStorage
+    if (sharedState) {
+      setTotalBudget(sharedState.totalBudget);
+      setNumMonths(sharedState.numMonths);
+      setCustomMonths(sharedState.customMonths);
+      setStartInDecember(sharedState.startInDecember);
+      setCarAllowance(sharedState.carAllowance);
+      setHealthPlan(sharedState.healthPlan);
+      setEmployeeIncluded(sharedState.employeeIncluded);
+      setSpouseIncluded(sharedState.spouseIncluded);
+      setDependentsUnder25(sharedState.dependentsUnder25);
+      setDependents25Plus(sharedState.dependents25Plus);
+      setPriorities(sharedState.priorities);
+      
+      setShowSharedBanner(false);
+      navigate('/');
+      alert('Shared configuration has been imported into your saved data!');
+    }
+  };
+
+  const handleDismissSharedBanner = (): void => {
+    setShowSharedBanner(false);
+  };
+
   return (
     <div className="min-h-screen bg-gray-50 p-4 sm:p-6 lg:p-8">
       <PrintDisclaimer />
@@ -303,13 +377,27 @@ const App: React.FC = () => {
         onConfirm={resetToDefaults}
       />
 
+      <ShareModal
+        show={showShareModal}
+        shareUrl={shareUrl}
+        onClose={() => setShowShareModal(false)}
+      />
+
       <div className="max-w-7xl mx-auto">
         <Header 
           onPrint={handlePrint}
           onReset={() => setShowResetConfirm(true)}
           onExport={handleExport}
           onImport={handleImport}
+          onShare={handleShare}
         />
+
+        {showSharedBanner && (
+          <SharedConfigBanner
+            onImport={handleImportSharedConfig}
+            onDismiss={handleDismissSharedBanner}
+          />
+        )}
         
         {/* Configuration Section */}
         <div className="bg-white rounded-lg shadow-md p-4 sm:p-6 mb-6 sm:mb-8">

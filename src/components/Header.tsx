@@ -5,9 +5,10 @@ interface HeaderProps {
   onReset: () => void;
   onExport: () => void;
   onImport: () => void;
+  onShare: () => void;
 }
 
-export const Header: React.FC<HeaderProps> = ({ onPrint, onReset, onExport, onImport }) => {
+export const Header: React.FC<HeaderProps> = ({ onPrint, onReset, onExport, onImport, onShare }) => {
   const [menuOpen, setMenuOpen] = useState(false);
 
   const handleAction = (action: () => void) => {
@@ -22,6 +23,13 @@ export const Header: React.FC<HeaderProps> = ({ onPrint, onReset, onExport, onIm
         
         {/* Desktop Menu - Hidden on mobile */}
         <div className="hidden lg:flex gap-3">
+          <button
+            onClick={onShare}
+            className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-all shadow-sm hover:shadow-md font-medium flex items-center gap-2"
+          >
+            <span>🔗</span>
+            <span>Share</span>
+          </button>
           <button
             onClick={onExport}
             className="px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-all shadow-sm hover:shadow-md font-medium flex items-center gap-2"
@@ -79,6 +87,13 @@ export const Header: React.FC<HeaderProps> = ({ onPrint, onReset, onExport, onIm
       {/* Mobile Dropdown Menu */}
       {menuOpen && (
         <div className="lg:hidden mt-4 bg-white border border-gray-200 rounded-lg shadow-lg overflow-hidden">
+          <button
+            onClick={() => handleAction(onShare)}
+            className="w-full px-4 py-3 bg-blue-600 text-white hover:bg-blue-700 transition-colors font-medium text-left border-b border-blue-700 flex items-center gap-2"
+          >
+            <span>🔗</span>
+            <span>Share Link</span>
+          </button>
           <button
             onClick={() => handleAction(onExport)}
             className="w-full px-4 py-3 bg-indigo-600 text-white hover:bg-indigo-700 transition-colors font-medium text-left border-b border-indigo-700 flex items-center gap-2"
