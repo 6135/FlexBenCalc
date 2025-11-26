@@ -137,6 +137,23 @@ export const AllocationMatrix: React.FC<AllocationMatrixProps> = ({
                     </tr>
                   );
                 })}
+                <tr className="bg-gradient-to-r from-purple-50 to-purple-100 font-semibold border-t-2 border-purple-300">
+                  <td className="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm text-purple-900 border border-gray-200">Total</td>
+                  {calculateAllocation.matrix.map((month, monthIndex) => {
+                    const monthTotal = month.reduce((sum, value) => sum + value, 0);
+                    return (
+                      <td key={monthIndex} className="px-2 sm:px-4 py-2 sm:py-3 text-center text-xs sm:text-sm text-purple-900 border border-gray-200">
+                        {monthTotal.toFixed(2)}
+                      </td>
+                    );
+                  })}
+                  <td className="px-2 sm:px-4 py-2 sm:py-3 text-center text-xs sm:text-sm text-purple-900 border border-gray-200 font-bold">
+                    {calculateAllocation.matrix.reduce((grandTotal, month) => grandTotal + month.reduce((sum, value) => sum + value, 0), 0).toFixed(2)}
+                  </td>
+                  <td className="px-2 sm:px-4 py-2 sm:py-3 text-center text-xs sm:text-sm text-purple-900 border border-gray-200 font-bold">
+                    {allPriorities.reduce((sum, p) => sum + p.yearlyAmount, 0).toFixed(2)}
+                  </td>
+                </tr>
                 <tr className="bg-gradient-to-r from-amber-50 to-amber-100 font-semibold">
                   <td className="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm text-gray-900 border border-gray-200">Surplus</td>
                   {calculateAllocation.surplusPerMonth.map((surplus, i) => (

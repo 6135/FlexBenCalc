@@ -77,7 +77,7 @@ export const Configurator: React.FC<ConfiguratorProps> = ({
             <input
               type="number"
               value={totalBudget === 0 ? '' : totalBudget}
-              onChange={(e) => onTotalBudgetChange(parseFloat(e.target.value) || 0)}
+              onChange={(e) => onTotalBudgetChange(Number.parseFloat(e.target.value) || 0)}
               className="w-full px-4 py-2 pr-8 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent"
             />
             <span className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500">€</span>
@@ -108,7 +108,7 @@ export const Configurator: React.FC<ConfiguratorProps> = ({
                 min="1"
                 max="12"
                 value={numMonths}
-                onChange={(e) => onNumMonthsChange(Math.min(12, Math.max(1, parseInt(e.target.value) || 1)))}
+                onChange={(e) => onNumMonthsChange(Math.min(12, Math.max(1, Number.parseInt(e.target.value) || 1)))}
                 className="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent"
               />
             </div>
@@ -161,7 +161,7 @@ export const Configurator: React.FC<ConfiguratorProps> = ({
                     type="number"
                     step="0.01"
                     value={totalBudget === 0 ? '' : totalBudget}
-                    onChange={(e) => onTotalBudgetChange(parseFloat(e.target.value) || 0)}
+                    onChange={(e) => onTotalBudgetChange(Number.parseFloat(e.target.value) || 0)}
                     className="w-full px-3 py-1 pr-6 border border-gray-300 rounded focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                   />
                   <span className="absolute right-2 top-1/2 -translate-y-1/2 text-gray-500 text-sm">€</span>
@@ -177,7 +177,7 @@ export const Configurator: React.FC<ConfiguratorProps> = ({
                     type="number"
                     step="0.01"
                     value={bonus === 0 ? '' : bonus}
-                    onChange={(e) => onBonusChange(parseFloat(e.target.value) || 0)}
+                    onChange={(e) => onBonusChange(Number.parseFloat(e.target.value) || 0)}
                     className="w-full px-3 py-1 pr-6 border border-gray-300 rounded focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                   />
                   <span className="absolute right-2 top-1/2 -translate-y-1/2 text-gray-500 text-sm">€</span>
@@ -193,7 +193,7 @@ export const Configurator: React.FC<ConfiguratorProps> = ({
                     type="number"
                     step="0.01"
                     value={carAllowance === 0 ? '' : carAllowance}
-                    onChange={(e) => onCarAllowanceChange(parseFloat(e.target.value) || 0)}
+                    onChange={(e) => onCarAllowanceChange(Number.parseFloat(e.target.value) || 0)}
                     className="w-full px-3 py-1 pr-6 border border-gray-300 rounded focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                   />
                   <span className="absolute right-2 top-1/2 -translate-y-1/2 text-gray-500 text-sm">€</span>
@@ -310,7 +310,7 @@ export const Configurator: React.FC<ConfiguratorProps> = ({
                     type="number"
                     min="0"
                     value={dependentsUnder25 === 0 ? '' : dependentsUnder25}
-                    onChange={(e) => onDependentsUnder25Change(parseInt(e.target.value) || 0)}
+                    onChange={(e) => onDependentsUnder25Change(Number.parseInt(e.target.value) || 0)}
                     className="w-full px-3 py-1 border border-gray-300 rounded focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                   />
                 </div>
@@ -325,7 +325,7 @@ export const Configurator: React.FC<ConfiguratorProps> = ({
                   type="number"
                   min="0"
                   value={dependents25Plus === 0 ? '' : dependents25Plus}
-                  onChange={(e) => onDependents25PlusChange(parseInt(e.target.value) || 0)}
+                  onChange={(e) => onDependents25PlusChange(Number.parseInt(e.target.value) || 0)}
                   className="w-full px-3 py-1 border border-gray-300 rounded focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                 />
               </div>
