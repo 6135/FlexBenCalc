@@ -7,9 +7,8 @@ import { useAllocationCalculations } from './hooks/useAllocationCalculations';
 import { DisclaimerModal } from './components/DisclaimerModal';
 import { ResetConfirmModal } from './components/ResetConfirmModal';
 import { PrintDisclaimer } from './components/PrintDisclaimer';
-import { BudgetConfiguration } from './components/InitialConfigurator';
+import { Configurator } from './components/Configurator';
 import { SummaryStats } from './components/SummaryStats';
-import { HealthInsuranceConfig } from './components/MainConfigurator';
 import { PriorityList } from './components/PriorityList';
 import { AllocationMatrix } from './components/AllocationMatrix';
 import { Header } from './components/Header';
@@ -443,7 +442,7 @@ const App: React.FC = () => {
         <div className="bg-white rounded-lg shadow-md p-4 sm:p-6 mb-6 sm:mb-8">
           <h2 className="text-xl font-semibold text-gray-800 mb-4">Configuration</h2>
           
-          <BudgetConfiguration
+          <Configurator
             totalBudget={totalBudget}
             numMonths={numMonths}
             customMonths={customMonths}
@@ -451,12 +450,24 @@ const App: React.FC = () => {
             carAllowance={carAllowance}
             bonus={bonus}
             monthlyAllowance={monthlyAllowance}
+            healthPlan={healthPlan}
+            employeeIncluded={employeeIncluded}
+            spouseIncluded={spouseIncluded}
+            dependentsUnder25={dependentsUnder25}
+            dependents25Plus={dependents25Plus}
+            effectiveBudget={effectiveBudget}
+            healthInsuranceCosts={healthInsuranceCosts}
             onTotalBudgetChange={setTotalBudget}
             onCustomMonthsChange={setCustomMonths}
             onNumMonthsChange={setNumMonths}
             onStartInDecemberChange={setStartInDecember}
             onCarAllowanceChange={setCarAllowance}
             onBonusChange={setBonus}
+            onHealthPlanChange={setHealthPlan}
+            onEmployeeIncludedChange={setEmployeeIncluded}
+            onSpouseIncludedChange={setSpouseIncluded}
+            onDependentsUnder25Change={setDependentsUnder25}
+            onDependents25PlusChange={setDependents25Plus}
           />
 
           <SummaryStats
@@ -464,27 +475,6 @@ const App: React.FC = () => {
             effectiveBudget={effectiveBudget}
             healthInsuranceCosts={healthInsuranceCosts}
             allPriorities={allPriorities}
-          />
-
-          <HealthInsuranceConfig
-            healthPlan={healthPlan}
-            employeeIncluded={employeeIncluded}
-            spouseIncluded={spouseIncluded}
-            dependentsUnder25={dependentsUnder25}
-            dependents25Plus={dependents25Plus}
-            totalBudget={totalBudget}
-            carAllowance={carAllowance}
-            bonus={bonus}
-            effectiveBudget={effectiveBudget}
-            healthInsuranceCosts={healthInsuranceCosts}
-            onHealthPlanChange={setHealthPlan}
-            onEmployeeIncludedChange={setEmployeeIncluded}
-            onSpouseIncludedChange={setSpouseIncluded}
-            onDependentsUnder25Change={setDependentsUnder25}
-            onDependents25PlusChange={setDependents25Plus}
-            onTotalBudgetChange={setTotalBudget}
-            onCarAllowanceChange={setCarAllowance}
-            onBonusChange={setBonus}
           />
         </div>
 
