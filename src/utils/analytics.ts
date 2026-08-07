@@ -51,6 +51,19 @@ const loadGtagScript = (): void => {
   window.gtag = function gtag(...args: unknown[]) {
     window.dataLayer!.push(args);
   };
+
+  // gtag.js withholds hits for visitors it geo-detects in a consent-required region
+  // (e.g. EEA/UK) unless an explicit consent state is set - silently, with no error,
+  // even though dataLayer fills up normally. loadGtagScript() only ever runs after
+  // the user has already granted consent via the disclaimer, so tell the library
+  // that directly. Ad storage stays denied since this app has no ads/remarketing.
+  window.gtag('consent', 'default', {
+    analytics_storage: 'granted',
+    ad_storage: 'denied',
+    ad_user_data: 'denied',
+    ad_personalization: 'denied',
+  });
+
   window.gtag('js', new Date());
   // page_view is sent manually (via trackPageView) so the /shared/:sharedData
   // route's personal data can be redacted before it's reported.
@@ -87,6 +100,9 @@ export const revokeConsent = (): void => {
     localStorage.setItem(CONSENT_STORAGE_KEY, 'denied');
   } catch {
     // localStorage unavailable (e.g. private browsing) - consent won't persist across reloads.
+  }
+  if (typeof window.gtag === 'function') {
+    window.gtag('consent', 'update', { analytics_storage: 'denied' });
   }
   clearGaCookies();
 };
