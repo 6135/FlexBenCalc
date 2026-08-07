@@ -62,26 +62,38 @@ const storeConsent = (choice: ConsentChoice): void => {
 
 const hasConsent = (): boolean => getStoredConsent() === 'granted';
 
+const gaCookieNames = (): string[] =>
+  document.cookie
+    .split(';')
+    .map((cookie) => cookie.split('=')[0].trim())
+    .filter((name) => name.startsWith('_ga'));
+
 // Removes any Google Analytics cookies so a rejected/revoked choice takes
 // effect immediately, even if a previous session had already granted consent.
-// GA may set _ga on the exact host or on a dot-prefixed parent domain, and a
-// deletion only matches if the domain attribute matches - so try each variant.
+//
+// A deletion only matches if its domain attribute matches the one the cookie
+// was set with, so we widen from host-only outwards. Crucially we stop as soon
+// as the cookie is actually gone: broader candidates can be public suffixes
+// (.github.io) or TLDs (.io), which browsers reject with a console warning.
 const clearGaCookies = (): void => {
+  const names = gaCookieNames();
+  if (names.length === 0) return;
+
   const { hostname } = window.location;
   const parts = hostname.split('.');
   const domains: (string | null)[] = [null, hostname];
-  for (let i = 0; i < parts.length - 1; i++) {
+  // Parent domains only; the full hostname is already covered above, and a
+  // bare TLD is never a valid cookie domain.
+  for (let i = 1; i < parts.length - 1; i++) {
     domains.push(`.${parts.slice(i).join('.')}`);
   }
 
-  document.cookie.split(';').forEach((cookie) => {
-    const name = cookie.split('=')[0].trim();
-    if (!name.startsWith('_ga')) return;
-
-    domains.forEach((domain) => {
+  names.forEach((name) => {
+    for (const domain of domains) {
+      if (!gaCookieNames().includes(name)) break;
       const domainPart = domain ? ` domain=${domain};` : '';
       document.cookie = `${name}=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;${domainPart}`;
-    });
+    }
   });
 };
 
