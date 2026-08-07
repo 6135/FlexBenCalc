@@ -43,6 +43,23 @@ const sanitizePath = (path: string): string =>
 const currentSanitizedPath = (): string =>
   sanitizePath(window.location.hash.replace(/^#/, '') || '/');
 
+const redactedUrl = (sanitizedPath: string): string =>
+  `${window.location.origin}${window.location.pathname}#${sanitizedPath}`;
+
+// Applies the redacted URL globally so that EVERY hit inherits it - including
+// events we don't construct ourselves (trackEvent calls, and GA4 Enhanced
+// Measurement's automatic scroll/click/download events). Without this, gtag.js
+// falls back to reading document.location.href, which on the /shared/ route
+// contains the user's base64-encoded financial config.
+const applyRedactedLocation = (path: string): void => {
+  if (typeof window.gtag !== 'function') return;
+  const sanitizedPath = sanitizePath(path);
+  window.gtag('set', {
+    page_path: sanitizedPath,
+    page_location: redactedUrl(sanitizedPath),
+  });
+};
+
 const loadGtagScript = (): void => {
   if (scriptLoaded) return;
   scriptLoaded = true;
@@ -71,8 +88,14 @@ const loadGtagScript = (): void => {
 
   window.gtag('js', new Date());
   // page_view is sent manually (via trackPageView) so the /shared/:sharedData
-  // route's personal data can be redacted before it's reported.
-  window.gtag('config', GA_MEASUREMENT_ID, { send_page_view: false });
+  // route's personal data can be redacted before it's reported. The redacted
+  // location is set here too so it applies from the very first hit.
+  const sanitizedPath = currentSanitizedPath();
+  window.gtag('config', GA_MEASUREMENT_ID, {
+    send_page_view: false,
+    page_path: sanitizedPath,
+    page_location: redactedUrl(sanitizedPath),
+  });
 
   const script = document.createElement('script');
   script.async = true;
@@ -115,10 +138,14 @@ export const revokeConsent = (): void => {
 export const trackPageView = (path: string): void => {
   if (!hasConsent() || typeof window.gtag !== 'function') return;
 
+  // Update the global redacted location first, so later events on this route
+  // (including GA's automatic ones) inherit it rather than the raw URL.
+  applyRedactedLocation(path);
+
   const sanitizedPath = sanitizePath(path);
   window.gtag('event', 'page_view', {
     page_path: sanitizedPath,
-    page_location: `${window.location.origin}${window.location.pathname}#${sanitizedPath}`,
+    page_location: redactedUrl(sanitizedPath),
     page_title: document.title,
     send_to: GA_MEASUREMENT_ID,
   });
@@ -128,5 +155,14 @@ export const trackPageView = (path: string): void => {
 // financial figures or other personal data, only the fact that an action happened.
 export const trackEvent = (name: string, params?: Record<string, unknown>): void => {
   if (!hasConsent() || typeof window.gtag !== 'function') return;
-  window.gtag('event', name, { ...params, send_to: GA_MEASUREMENT_ID });
+
+  const sanitizedPath = currentSanitizedPath();
+  window.gtag('event', name, {
+    ...params,
+    // Set explicitly as well as globally: without it gtag falls back to
+    // document.location.href, leaking the /shared/ route's encoded config.
+    page_path: sanitizedPath,
+    page_location: redactedUrl(sanitizedPath),
+    send_to: GA_MEASUREMENT_ID,
+  });
 };
