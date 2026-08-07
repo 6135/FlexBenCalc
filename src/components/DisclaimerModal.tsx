@@ -25,6 +25,11 @@ export const DisclaimerModal: React.FC<DisclaimerModalProps> = ({
 }) => {
   const [cookieChoice, setCookieChoice] = useState<CookieChoice>(initialCookieChoice);
 
+  // First-time visitors must make an explicit cookie choice before they can
+  // dismiss the dialog. Returning visitors keep their stored choice and can
+  // dismiss straight away (they can still change it here).
+  const mustChooseCookies = cookieChoice === null;
+
   if (!show) return null;
 
   const handleAcceptCookies = (): void => {
@@ -74,9 +79,9 @@ export const DisclaimerModal: React.FC<DisclaimerModalProps> = ({
               of their encoded data before anything is reported.
             </p>
             <p>
-              Analytics is <strong>off by default</strong>. If you reject it, no analytics
-              cookies are set and no data is sent to Google at all. You can change your
-              choice any time by reloading the page.
+              Nothing is collected until you choose. If you reject, no analytics cookies
+              are set and no data is sent to Google at all. You can change your choice any
+              time by reloading the page.
             </p>
           </div>
           <div className="flex flex-wrap gap-3 mt-4">
@@ -103,10 +108,22 @@ export const DisclaimerModal: React.FC<DisclaimerModalProps> = ({
           </div>
         </div>
 
-        <div className="flex justify-end gap-3">
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-end gap-3">
+          {mustChooseCookies && (
+            <p className="text-sm text-gray-600 sm:mr-auto">
+              Please accept or reject analytics cookies above to continue.
+            </p>
+          )}
           <button
             onClick={onAccept}
-            className="px-6 py-3 bg-red-600 text-white font-semibold rounded-lg hover:bg-red-700 transition-colors"
+            disabled={mustChooseCookies}
+            aria-disabled={mustChooseCookies}
+            title={mustChooseCookies ? 'Choose whether to accept analytics cookies first' : undefined}
+            className={`px-6 py-3 font-semibold rounded-lg transition-colors ${
+              mustChooseCookies
+                ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
+                : 'bg-red-600 text-white hover:bg-red-700'
+            }`}
           >
             I Understand and Accept
           </button>

@@ -57,10 +57,11 @@ The app can optionally use Google Analytics (GA4) to understand which
 features are actually used (e.g. Share, Export, Print, Auto-Balance), so we
 know what's worth improving. A few things worth knowing:
 
-- **Off by default.** Analytics only starts after you explicitly accept it
-  in the disclaimer dialog shown on load. If you reject it (or don't
-  choose), no analytics script is loaded and no cookies are set — nothing
-  is sent to Google at all.
+- **Opt-in, and you must choose.** First-time visitors have to explicitly
+  accept or reject analytics before the disclaimer dialog can be dismissed.
+  Nothing is loaded or collected until that choice is made, and if you
+  reject, no analytics script is loaded and no cookies are set — nothing is
+  sent to Google at all.
 - **No financial data is ever tracked.** Only the fact that an action
   happened is recorded (e.g. "export button clicked") — never your budget,
   dependents, priorities, or other figures.
