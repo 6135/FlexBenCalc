@@ -1,12 +1,41 @@
-import React from 'react';
+import React, { useState } from 'react';
+import { getStoredConsent } from '../utils/analytics';
 
 interface DisclaimerModalProps {
   show: boolean;
   onAccept: () => void;
+  onAcceptCookies: () => void;
+  onRejectCookies: () => void;
 }
 
-export const DisclaimerModal: React.FC<DisclaimerModalProps> = ({ show, onAccept }) => {
+type CookieChoice = 'accepted' | 'rejected' | null;
+
+const initialCookieChoice = (): CookieChoice => {
+  const stored = getStoredConsent();
+  if (stored === 'granted') return 'accepted';
+  if (stored === 'denied') return 'rejected';
+  return null;
+};
+
+export const DisclaimerModal: React.FC<DisclaimerModalProps> = ({
+  show,
+  onAccept,
+  onAcceptCookies,
+  onRejectCookies,
+}) => {
+  const [cookieChoice, setCookieChoice] = useState<CookieChoice>(initialCookieChoice);
+
   if (!show) return null;
+
+  const handleAcceptCookies = (): void => {
+    setCookieChoice('accepted');
+    onAcceptCookies();
+  };
+
+  const handleRejectCookies = (): void => {
+    setCookieChoice('rejected');
+    onRejectCookies();
+  };
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
@@ -33,6 +62,47 @@ export const DisclaimerModal: React.FC<DisclaimerModalProps> = ({ show, onAccept
             </div>
           </div>
         </div>
+
+        <div className="border-t border-gray-200 pt-6 mb-6">
+          <h3 className="text-lg font-bold text-gray-800 mb-2">🍪 Cookies &amp; Analytics</h3>
+          <div className="text-gray-700 space-y-2 text-sm">
+            <p>
+              We use Google Analytics to understand which features people actually use
+              (e.g. Share, Export, Print, Auto-Balance), so we know what's worth improving.
+              It only records that an action happened — never your budget, dependents,
+              priorities, or other figures you enter. Shared-link URLs are also stripped
+              of their encoded data before anything is reported.
+            </p>
+            <p>
+              Analytics is <strong>off by default</strong>. If you reject it, no analytics
+              cookies are set and no data is sent to Google at all. You can change your
+              choice any time by reloading the page.
+            </p>
+          </div>
+          <div className="flex flex-wrap gap-3 mt-4">
+            <button
+              onClick={handleAcceptCookies}
+              className={`px-4 py-2 rounded-lg font-medium text-sm transition-colors ${
+                cookieChoice === 'accepted'
+                  ? 'bg-green-600 text-white'
+                  : 'bg-green-50 text-green-700 border border-green-600 hover:bg-green-100'
+              }`}
+            >
+              {cookieChoice === 'accepted' ? '✓ Analytics Accepted' : 'Accept Analytics Cookies'}
+            </button>
+            <button
+              onClick={handleRejectCookies}
+              className={`px-4 py-2 rounded-lg font-medium text-sm transition-colors ${
+                cookieChoice === 'rejected'
+                  ? 'bg-gray-700 text-white'
+                  : 'bg-gray-50 text-gray-700 border border-gray-400 hover:bg-gray-100'
+              }`}
+            >
+              {cookieChoice === 'rejected' ? '✓ Analytics Rejected' : 'Reject Analytics Cookies'}
+            </button>
+          </div>
+        </div>
+
         <div className="flex justify-end gap-3">
           <button
             onClick={onAccept}

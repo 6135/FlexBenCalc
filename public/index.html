@@ -31,17 +31,11 @@
     -->
     <link rel="manifest" href="%PUBLIC_URL%/manifest.json" />
 
-    <!-- Google tag (gtag.js) -->
-    <script async src="https://www.googletagmanager.com/gtag/js?id=G-7S0Q813S0J"></script>
-    <script>
-      window.dataLayer = window.dataLayer || [];
-      function gtag(){dataLayer.push(arguments);}
-      gtag('js', new Date());
-
-      // page_view is sent manually (see src/index.tsx) so the /shared/:sharedData
-      // route's base64-encoded personal data can be redacted before it's reported.
-      gtag('config', 'G-7S0Q813S0J', { send_page_view: false });
-    </script>
+    <!--
+      Google Analytics (gtag.js) is intentionally NOT loaded here. It is only
+      injected, on demand, after the user accepts analytics cookies in the
+      disclaimer dialog. See src/utils/analytics.ts for the consent gate.
+    -->
     <!--
       Notice the use of %PUBLIC_URL% in the tags above.
       It will be replaced with the URL of the `public` folder during the build.

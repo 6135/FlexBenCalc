@@ -17,6 +17,7 @@ import { ShareModal } from './components/ShareModal';
 import { SharedConfigBanner } from './components/SharedConfigBanner';
 import { migrateConfig, CURRENT_CONFIG_VERSION } from './utils/configMigration';
 import { generateShareUrl, decodeBase64ToState } from './utils/shareUtils';
+import { grantConsent, revokeConsent, trackEvent } from './utils/analytics';
 
 const App: React.FC = () => {
   const { sharedData } = useParams<{ sharedData?: string }>();
@@ -123,6 +124,7 @@ const App: React.FC = () => {
     setPriorities(defaults.priorities);
     localStorage.removeItem('benefitsAllocatorState');
     setShowResetConfirm(false);
+    trackEvent('reset_to_defaults');
   };
 
   // Calculate health insurance costs and priorities using hook
@@ -207,6 +209,7 @@ const App: React.FC = () => {
   };
 
   const handlePrint = (): void => {
+    trackEvent('print');
     globalThis.print();
   };
 
@@ -239,6 +242,7 @@ const App: React.FC = () => {
     link.click();
     link.remove();
     URL.revokeObjectURL(url);
+    trackEvent('export_config');
   };
 
   const handleImport = (): void => {
@@ -280,6 +284,7 @@ const App: React.FC = () => {
           versionMessage = ' (migrated from version 1)';
         }
         alert(`Configuration imported successfully${versionMessage}!`);
+        trackEvent('import_config');
       } catch (error) {
         console.error('Error importing file:', error);
         alert('Error importing file. Please ensure it is a valid JSON file.');
@@ -327,6 +332,7 @@ const App: React.FC = () => {
     }
 
     setPriorities(updatedPriorities);
+    trackEvent('auto_balance');
   };
 
   const handleShare = (): void => {
@@ -350,6 +356,7 @@ const App: React.FC = () => {
     const url = generateShareUrl(exportData);
     setShareUrl(url);
     setShowShareModal(true);
+    trackEvent('share_link_created');
   };
 
   const handleImportSharedConfig = (): void => {
@@ -371,6 +378,7 @@ const App: React.FC = () => {
       setShowSharedBanner(false);
       navigate('/');
       alert('Shared configuration has been imported into your saved data!');
+      trackEvent('shared_config_imported');
     }
   };
 
@@ -403,9 +411,11 @@ const App: React.FC = () => {
     <div className="min-h-screen bg-gray-50 p-4 sm:p-6 lg:p-8">
       <PrintDisclaimer />
       
-      <DisclaimerModal 
-        show={showDisclaimer} 
-        onAccept={() => setShowDisclaimer(false)} 
+      <DisclaimerModal
+        show={showDisclaimer}
+        onAccept={() => setShowDisclaimer(false)}
+        onAcceptCookies={grantConsent}
+        onRejectCookies={revokeConsent}
       />
       
       <ResetConfirmModal
