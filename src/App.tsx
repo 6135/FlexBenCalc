@@ -257,24 +257,32 @@ const App: React.FC = () => {
       try {
         const text = await file.text();
         const rawData = JSON.parse(text);
-        
+
         // Migrate configuration to current version
         const importedData = migrateConfig(rawData);
-        
+
         // Apply migrated data
-        if (importedData.totalBudget !== undefined) setTotalBudget(importedData.totalBudget);
-        if (importedData.numMonths !== undefined) setNumMonths(importedData.numMonths);
-        if (importedData.customMonths !== undefined) setCustomMonths(importedData.customMonths);
-        if (importedData.startInDecember !== undefined) setStartInDecember(importedData.startInDecember);
-        if (importedData.carAllowance !== undefined) setCarAllowance(importedData.carAllowance);
-        if (importedData.bonus !== undefined) setBonus(importedData.bonus);
-        if (importedData.healthPlan !== undefined) setHealthPlan(importedData.healthPlan);
-        if (importedData.employeeIncluded !== undefined) setEmployeeIncluded(importedData.employeeIncluded);
-        if (importedData.spouseIncluded !== undefined) setSpouseIncluded(importedData.spouseIncluded);
-        if (importedData.dependentsUnder25 !== undefined) setDependentsUnder25(importedData.dependentsUnder25);
-        if (importedData.dependents25Plus !== undefined) setDependents25Plus(importedData.dependents25Plus);
-        if (importedData.priorities !== undefined) setPriorities(importedData.priorities);
-        
+        const importFieldSetters: Partial<{ [K in keyof AppState]: (value: AppState[K]) => void }> = {
+          totalBudget: setTotalBudget,
+          numMonths: setNumMonths,
+          customMonths: setCustomMonths,
+          startInDecember: setStartInDecember,
+          carAllowance: setCarAllowance,
+          bonus: setBonus,
+          healthPlan: setHealthPlan,
+          employeeIncluded: setEmployeeIncluded,
+          spouseIncluded: setSpouseIncluded,
+          dependentsUnder25: setDependentsUnder25,
+          dependents25Plus: setDependents25Plus,
+          priorities: setPriorities,
+        };
+        (Object.keys(importFieldSetters) as (keyof AppState)[]).forEach((key) => {
+          const value = importedData[key];
+          if (value !== undefined) {
+            (importFieldSetters[key] as (v: unknown) => void)(value);
+          }
+        });
+
         let versionMessage = '';
         if (rawData.version) {
           if (rawData.version < CURRENT_CONFIG_VERSION) {
