@@ -157,6 +157,14 @@ const loadGtagScript = (): void => {
     send_page_view: false,
     page_path: sanitizedPath,
     page_location: redactedUrl(sanitizedPath),
+    // Pin cookies to this exact host. The default ('auto') makes gtag.js probe
+    // for the broadest domain it can write to, walking up from the top: on
+    // 6135.github.io that means trying '.io' and '.github.io' first, both of
+    // which the browser rejects because github.io is on the Public Suffix List.
+    // The cookie still ends up set on the host, but every attempt logs
+    // "Cookie ... has been rejected for invalid domain". 'none' writes a
+    // host-only cookie directly, with no probing and no warnings.
+    cookie_domain: 'none',
   });
 
   const script = document.createElement('script');
