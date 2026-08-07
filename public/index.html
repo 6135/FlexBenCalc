@@ -38,7 +38,9 @@
       function gtag(){dataLayer.push(arguments);}
       gtag('js', new Date());
 
-      gtag('config', 'G-7S0Q813S0J');
+      // page_view is sent manually (see src/index.tsx) so the /shared/:sharedData
+      // route's base64-encoded personal data can be redacted before it's reported.
+      gtag('config', 'G-7S0Q813S0J', { send_page_view: false });
     </script>
     <!--
       Notice the use of %PUBLIC_URL% in the tags above.
