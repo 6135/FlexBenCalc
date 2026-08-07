@@ -390,6 +390,15 @@ const App: React.FC = () => {
     }
   };
 
+  const handleRejectCookies = (): void => {
+    const { reloadRequired } = revokeConsent();
+    // Analytics was already running this session: reloading is the only way to
+    // fully unload gtag.js, which otherwise keeps sending cookieless pings.
+    if (reloadRequired) {
+      globalThis.location.reload();
+    }
+  };
+
   const handleDismissSharedBanner = (): void => {
     setShowSharedBanner(false);
   };
@@ -423,7 +432,7 @@ const App: React.FC = () => {
         show={showDisclaimer}
         onAccept={() => setShowDisclaimer(false)}
         onAcceptCookies={grantConsent}
-        onRejectCookies={revokeConsent}
+        onRejectCookies={handleRejectCookies}
       />
       
       <ResetConfirmModal
@@ -517,7 +526,7 @@ const App: React.FC = () => {
         />
       </div>
 
-      <Footer />
+      <Footer onCookieSettings={() => setShowDisclaimer(true)} />
     </div>
   );
 };

@@ -69,11 +69,31 @@ know what's worth improving. A few things worth knowing:
   full configuration as base64 in the URL. That segment is stripped to
   `/shared/[redacted]` before anything is reported, so a shared link's
   contents never reach analytics either.
-- **You can change your mind.** The consent choice is asked again each time
-  you reload the page, alongside the disclaimer.
+- **You can change your mind at any time** via the "Cookie settings" link in
+  the footer. Withdrawing consent reloads the page so the analytics script is
+  fully unloaded, not merely muted.
+- **Your choice is recorded** with a timestamp and policy version, so it can
+  be demonstrated and so a change to the policy re-asks rather than assuming.
+
+The full privacy policy lives at `/#/privacy` in the app
+(`src/components/PrivacyPolicy.tsx`) and covers the controller, recipients,
+international transfers, retention and your GDPR rights.
 
 See `src/utils/analytics.ts` for the consent-gating implementation and
 `src/components/DisclaimerModal.tsx` for the consent UI.
+
+### Configuring the GA4 property
+
+Two settings must be applied in the GA4 admin UI to match what the policy
+states — they cannot be set from code:
+
+1. **Data retention** — Admin → Data Settings → Data Retention → 2 months.
+2. **Enhanced Measurement** — Admin → Data Streams → your stream. The code
+   redacts URLs globally so automatic events inherit the redaction, but
+   review which of these events you actually want.
+
+You must also accept Google's Data Processing Terms (Admin → Account
+Settings) to have a valid controller–processor arrangement.
 
 ## Disclaimer
 

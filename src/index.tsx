@@ -3,6 +3,7 @@ import React, { useEffect } from 'react';
 import ReactDOM from 'react-dom/client';
 import { HashRouter, Routes, Route, useLocation } from 'react-router-dom';
 import App from './App';
+import { PrivacyPolicy } from './components/PrivacyPolicy';
 import './index.css';
 import { trackPageView, initAnalyticsFromStoredConsent } from './utils/analytics';
 
@@ -33,6 +34,7 @@ root.render(
       <Routes>
         <Route path="/" element={<App />} />
         <Route path="/shared/:sharedData" element={<App />} />
+        <Route path="/privacy" element={<PrivacyPolicy />} />
       </Routes>
     </HashRouter>
   </React.StrictMode>

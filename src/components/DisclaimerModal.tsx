@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { Link } from 'react-router-dom';
 import { getStoredConsent } from '../utils/analytics';
 
 interface DisclaimerModalProps {
@@ -79,31 +80,44 @@ export const DisclaimerModal: React.FC<DisclaimerModalProps> = ({
               of their encoded data before anything is reported.
             </p>
             <p>
-              Nothing is collected until you choose. If you reject, no analytics cookies
-              are set and no data is sent to Google at all. You can change your choice any
-              time by reloading the page.
+              Nothing is collected until you choose. If you reject, the Google Analytics
+              script is never loaded, no analytics cookies are set, and nothing is sent to
+              Google. You can change your choice any time via <strong>Cookie settings</strong> at
+              the bottom of the page.
+            </p>
+            <p>
+              Full details — including who receives the data, how long it is kept, and your
+              rights — are in the{' '}
+              <Link to="/privacy" className="text-blue-600 hover:text-blue-800 underline">
+                Privacy Policy
+              </Link>
+              .
             </p>
           </div>
-          <div className="flex flex-wrap gap-3 mt-4">
+          {/* Both options are given identical weight and styling, so neither is
+              nudged over the other (EDPB guidance on equally prominent choices). */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mt-4">
             <button
               onClick={handleAcceptCookies}
-              className={`px-4 py-2 rounded-lg font-medium text-sm transition-colors ${
+              aria-pressed={cookieChoice === 'accepted'}
+              className={`px-4 py-2 rounded-lg font-medium text-sm border transition-colors ${
                 cookieChoice === 'accepted'
-                  ? 'bg-green-600 text-white'
-                  : 'bg-green-50 text-green-700 border border-green-600 hover:bg-green-100'
+                  ? 'bg-blue-700 text-white border-blue-700'
+                  : 'bg-white text-gray-800 border-gray-400 hover:bg-gray-100'
               }`}
             >
-              {cookieChoice === 'accepted' ? '✓ Analytics Accepted' : 'Accept Analytics Cookies'}
+              {cookieChoice === 'accepted' ? '✓ Analytics accepted' : 'Accept analytics cookies'}
             </button>
             <button
               onClick={handleRejectCookies}
-              className={`px-4 py-2 rounded-lg font-medium text-sm transition-colors ${
+              aria-pressed={cookieChoice === 'rejected'}
+              className={`px-4 py-2 rounded-lg font-medium text-sm border transition-colors ${
                 cookieChoice === 'rejected'
-                  ? 'bg-gray-700 text-white'
-                  : 'bg-gray-50 text-gray-700 border border-gray-400 hover:bg-gray-100'
+                  ? 'bg-blue-700 text-white border-blue-700'
+                  : 'bg-white text-gray-800 border-gray-400 hover:bg-gray-100'
               }`}
             >
-              {cookieChoice === 'rejected' ? '✓ Analytics Rejected' : 'Reject Analytics Cookies'}
+              {cookieChoice === 'rejected' ? '✓ Analytics rejected' : 'Reject analytics cookies'}
             </button>
           </div>
         </div>

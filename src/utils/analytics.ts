@@ -9,16 +9,54 @@ declare global {
 export const GA_MEASUREMENT_ID = 'G-7S0Q813S0J';
 const CONSENT_STORAGE_KEY = 'gaConsent';
 
+// Bump when the privacy policy or the scope of what we collect changes, so
+// previously stored consent stops counting and users are asked again.
+export const CONSENT_POLICY_VERSION = 1;
+
 export type ConsentChoice = 'granted' | 'denied';
+
+export interface ConsentRecord {
+  choice: ConsentChoice;
+  // ISO timestamp + policy version, so the consent can be *demonstrated*
+  // after the fact (GDPR Art. 7(1)) rather than just acted on.
+  timestamp: string;
+  policyVersion: number;
+}
 
 let scriptLoaded = false;
 
-export const getStoredConsent = (): ConsentChoice | null => {
+export const getConsentRecord = (): ConsentRecord | null => {
   try {
-    const value = localStorage.getItem(CONSENT_STORAGE_KEY);
-    return value === 'granted' || value === 'denied' ? value : null;
+    const raw = localStorage.getItem(CONSENT_STORAGE_KEY);
+    if (!raw) return null;
+
+    // Legacy format: a bare 'granted'/'denied' string with no timestamp or
+    // version. It can't be demonstrated, so treat it as no choice at all.
+    if (raw === 'granted' || raw === 'denied') return null;
+
+    const parsed = JSON.parse(raw) as Partial<ConsentRecord>;
+    if (parsed.choice !== 'granted' && parsed.choice !== 'denied') return null;
+    if (parsed.policyVersion !== CONSENT_POLICY_VERSION) return null;
+    if (typeof parsed.timestamp !== 'string') return null;
+
+    return parsed as ConsentRecord;
   } catch {
     return null;
+  }
+};
+
+export const getStoredConsent = (): ConsentChoice | null => getConsentRecord()?.choice ?? null;
+
+const storeConsent = (choice: ConsentChoice): void => {
+  const record: ConsentRecord = {
+    choice,
+    timestamp: new Date().toISOString(),
+    policyVersion: CONSENT_POLICY_VERSION,
+  };
+  try {
+    localStorage.setItem(CONSENT_STORAGE_KEY, JSON.stringify(record));
+  } catch {
+    // localStorage unavailable (e.g. private browsing) - consent won't persist across reloads.
   }
 };
 
@@ -26,12 +64,24 @@ const hasConsent = (): boolean => getStoredConsent() === 'granted';
 
 // Removes any Google Analytics cookies so a rejected/revoked choice takes
 // effect immediately, even if a previous session had already granted consent.
+// GA may set _ga on the exact host or on a dot-prefixed parent domain, and a
+// deletion only matches if the domain attribute matches - so try each variant.
 const clearGaCookies = (): void => {
+  const { hostname } = window.location;
+  const parts = hostname.split('.');
+  const domains: (string | null)[] = [null, hostname];
+  for (let i = 0; i < parts.length - 1; i++) {
+    domains.push(`.${parts.slice(i).join('.')}`);
+  }
+
   document.cookie.split(';').forEach((cookie) => {
     const name = cookie.split('=')[0].trim();
-    if (name.startsWith('_ga')) {
-      document.cookie = `${name}=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;`;
-    }
+    if (!name.startsWith('_ga')) return;
+
+    domains.forEach((domain) => {
+      const domainPart = domain ? ` domain=${domain};` : '';
+      document.cookie = `${name}=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;${domainPart}`;
+    });
   });
 };
 
@@ -111,11 +161,7 @@ export const initAnalyticsFromStoredConsent = (): void => {
 };
 
 export const grantConsent = (): void => {
-  try {
-    localStorage.setItem(CONSENT_STORAGE_KEY, 'granted');
-  } catch {
-    // localStorage unavailable (e.g. private browsing) - consent won't persist across reloads.
-  }
+  storeConsent('granted');
   const wasAlreadyLoaded = scriptLoaded;
   loadGtagScript();
   if (!wasAlreadyLoaded) {
@@ -123,16 +169,18 @@ export const grantConsent = (): void => {
   }
 };
 
-export const revokeConsent = (): void => {
-  try {
-    localStorage.setItem(CONSENT_STORAGE_KEY, 'denied');
-  } catch {
-    // localStorage unavailable (e.g. private browsing) - consent won't persist across reloads.
-  }
+// Returns whether a reload is needed to fully stop analytics. Once gtag.js is
+// running, setting consent to denied stops cookies but the library still sends
+// cookieless pings (which carry the IP address). Only unloading it - i.e. a
+// reload, after which initAnalyticsFromStoredConsent() won't load it again -
+// actually stops all transmission, which is what the UI promises.
+export const revokeConsent = (): { reloadRequired: boolean } => {
+  storeConsent('denied');
   if (typeof window.gtag === 'function') {
     window.gtag('consent', 'update', { analytics_storage: 'denied' });
   }
   clearGaCookies();
+  return { reloadRequired: scriptLoaded };
 };
 
 export const trackPageView = (path: string): void => {
