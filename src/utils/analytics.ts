@@ -48,8 +48,13 @@ const loadGtagScript = (): void => {
   scriptLoaded = true;
 
   window.dataLayer = window.dataLayer || [];
-  window.gtag = function gtag(...args: unknown[]) {
-    window.dataLayer!.push(args);
+  // Must push the `arguments` object, exactly as Google's official snippet does.
+  // gtag.js ignores commands pushed as real arrays (e.g. via rest parameters),
+  // silently: the library still loads and dataLayer still fills up, but no hits
+  // are ever sent.
+  window.gtag = function gtag() {
+    // eslint-disable-next-line prefer-rest-params
+    window.dataLayer!.push(arguments);
   };
 
   // gtag.js withholds hits for visitors it geo-detects in a consent-required region
