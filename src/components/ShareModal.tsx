@@ -34,6 +34,15 @@ export const ShareModal: React.FC<ShareModalProps> = ({
           Share this link to let others view your benefits configuration. They can import it without affecting their own saved data.
         </p>
 
+        <div className="bg-amber-50 border border-amber-300 rounded-lg p-3 mb-4">
+          <p className="text-sm text-amber-900">
+            <strong>Heads up:</strong> this link contains your figures — budget, bonus, health plan
+            and priorities — encoded in the address itself. Anyone who has the link can read them,
+            and links can travel further than intended through browser history, chat previews and
+            server logs. Only send it to people you would be comfortable showing the numbers to.
+          </p>
+        </div>
+
         <div className="bg-gray-50 p-4 rounded-lg mb-4">
           <div className="flex items-center gap-2">
             <input
