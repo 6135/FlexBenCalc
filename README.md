@@ -101,3 +101,6 @@ This calculator is provided for informational purposes only. All
 calculations are the user's sole responsibility — verify results
 independently before making financial decisions. See the in-app disclaimer
 for full terms.
+
+
+
