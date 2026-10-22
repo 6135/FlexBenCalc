@@ -64,7 +64,7 @@ export const useHealthInsuranceCalculations = (
       const dependentsCost = (dependents25Plus * selectedPrices.over25) - (dependents25Plus * companyPaysPerDependent);
       insurancePriorities.push({
         id: -4,
-        name: `Health Insurance - ${dependents25Plus} Dependent(s) ≥25 (${healthPlan})`,
+        name: `Health Insurance - ${dependents25Plus} Dependent(s) 25-30 (${healthPlan})`,
         yearlyAmount: dependentsCost,
         isHealthInsurance: true
       });

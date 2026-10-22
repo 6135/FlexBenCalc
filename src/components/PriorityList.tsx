@@ -1,5 +1,13 @@
 import React from 'react';
-import { Priority } from '../types';
+import { BenefitOption, Priority } from '../types';
+import { benefitCatalog, getBenefit, OTHER_BENEFIT_ID } from '../constants';
+
+const formatLimits = (benefit: BenefitOption): string => {
+  if (benefit.min !== undefined && benefit.max !== undefined) return `Limits: ${benefit.min} € – ${benefit.max} €`;
+  if (benefit.min !== undefined) return `Minimum: ${benefit.min} €`;
+  if (benefit.max !== undefined) return `Cap: ${benefit.max} €`;
+  return 'No limits';
+};
 
 interface PriorityListProps {
   priorities: Priority[];
@@ -35,8 +43,11 @@ export const PriorityList: React.FC<PriorityListProps> = ({
       </div>
       
       <div className="space-y-3">
-        {priorities.map((priority, index) => (
-          <div 
+        {priorities.map((priority, index) => {
+          const benefit = getBenefit(priority.benefitId);
+          const belowMin = benefit?.min !== undefined && priority.yearlyAmount > 0 && priority.yearlyAmount < benefit.min;
+          return (
+          <div
             key={priority.id} 
             className={`flex flex-col gap-3 p-3 sm:p-4 rounded-md transition-all ${
               draggedItem === index ? 'bg-blue-100 opacity-50 scale-95' : 'bg-gray-50 hover:bg-gray-100'
@@ -60,19 +71,36 @@ export const PriorityList: React.FC<PriorityListProps> = ({
                   {index + 1}
                 </div>
               </div>
-              <input
-                type="text"
-                value={priority.name}
-                onChange={(e) => onUpdatePriority(priority.id, 'name', e.target.value)}
-                className="flex-1 px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                placeholder="Priority name"
-              />
+              <div className="flex-1 flex flex-col sm:flex-row gap-3">
+                <select
+                  value={benefit ? benefit.id : OTHER_BENEFIT_ID}
+                  onChange={(e) => onUpdatePriority(priority.id, 'benefitId', e.target.value)}
+                  className="flex-1 px-4 py-2 border border-gray-300 rounded-md bg-white focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  title={benefit ? `${benefit.appliesTo} · IRS exempt: ${benefit.irsExempt ? 'Yes' : 'No'} · ${benefit.provider}` : 'Custom benefit'}
+                >
+                  {benefitCatalog.map(b => (
+                    <option key={b.id} value={b.id}>{b.name}</option>
+                  ))}
+                  <option value={OTHER_BENEFIT_ID}>Other (write your own)</option>
+                </select>
+                {!benefit && (
+                  <input
+                    type="text"
+                    value={priority.name}
+                    onChange={(e) => onUpdatePriority(priority.id, 'name', e.target.value)}
+                    className="flex-1 px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    placeholder="Describe the benefit"
+                  />
+                )}
+              </div>
               <div className="relative w-full sm:w-40">
                 <input
                   type="number"
                   value={priority.yearlyAmount === 0 ? '' : priority.yearlyAmount}
                   onChange={(e) => onUpdatePriority(priority.id, 'yearlyAmount', e.target.value)}
-                  className="w-full px-4 py-2 pr-8 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  min={benefit?.min ?? 0}
+                  max={benefit?.max}
+                  className={`w-full px-4 py-2 pr-8 border rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent ${belowMin ? 'border-red-500' : 'border-gray-300'}`}
                   placeholder="Yearly amount"
                 />
                 <span className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500">€</span>
@@ -84,6 +112,18 @@ export const PriorityList: React.FC<PriorityListProps> = ({
                 Remove
               </button>
             </div>
+            {benefit && (
+              <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-gray-600">
+                <span>Applies to: {benefit.appliesTo}</span>
+                <span>IRS exempt: {benefit.irsExempt ? 'Yes' : 'No'}</span>
+                <span>Provider: {benefit.provider}</span>
+                <span>{formatLimits(benefit)}</span>
+                {benefit.notes && <span className="italic">{benefit.notes}</span>}
+                {belowMin && (
+                  <span className="text-red-600 font-semibold">Below the {benefit.min} € minimum</span>
+                )}
+              </div>
+            )}
             <div className="flex items-center gap-2">
               <span className="text-sm text-gray-600 whitespace-nowrap">Note:</span>
               <input
@@ -95,7 +135,8 @@ export const PriorityList: React.FC<PriorityListProps> = ({
               />
             </div>
           </div>
-        ))}
+          );
+        })}
       </div>
     </div>
   );

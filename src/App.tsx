@@ -1,7 +1,7 @@
 import React, { useState, useMemo, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { Priority, HealthPlanType, AppState } from './types';
-import { defaults } from './constants';
+import { defaults, getBenefit, clampToBenefitMax, OTHER_BENEFIT_ID } from './constants';
 import { useHealthInsuranceCalculations } from './hooks/useHealthInsuranceCalculations';
 import { useAllocationCalculations } from './hooks/useAllocationCalculations';
 import { DisclaimerModal } from './components/DisclaimerModal';
@@ -174,7 +174,7 @@ const App: React.FC = () => {
 
   const addPriority = (): void => {
     const newId = Math.max(...priorities.map(p => p.id), 0) + 1;
-    setPriorities([...priorities, { id: newId, name: `Priority ${newId}`, yearlyAmount: 0 }]);
+    setPriorities([...priorities, { id: newId, name: '', yearlyAmount: 0, benefitId: OTHER_BENEFIT_ID }]);
   };
 
   const removePriority = (id: number): void => {
@@ -182,9 +182,24 @@ const App: React.FC = () => {
   };
 
   const updatePriority = (id: number, field: keyof Priority, value: string | number): void => {
-    setPriorities(priorities.map(p => 
-      p.id === id ? { ...p, [field]: field === 'yearlyAmount' ? Number.parseFloat(value as string) || 0 : value } : p
-    ));
+    setPriorities(priorities.map(p => {
+      if (p.id !== id) return p;
+      if (field === 'yearlyAmount') {
+        return { ...p, yearlyAmount: clampToBenefitMax(Number.parseFloat(value as string) || 0, p.benefitId) };
+      }
+      if (field === 'benefitId') {
+        const benefitId = value as string;
+        const benefit = getBenefit(benefitId);
+        return {
+          ...p,
+          benefitId,
+          // Catalog benefits take their official name; switching to "Other" keeps any custom name
+          name: benefit ? benefit.name : (getBenefit(p.benefitId) ? '' : p.name),
+          yearlyAmount: clampToBenefitMax(p.yearlyAmount, benefitId)
+        };
+      }
+      return { ...p, [field]: value };
+    }));
   };
 
   const handleDragStart = (index: number): void => {
@@ -320,8 +335,16 @@ const App: React.FC = () => {
       if (updatedPriorities[i].yearlyAmount > 0) {
         const currentAmount = updatedPriorities[i].yearlyAmount;
         const newAmount = currentAmount + remainingAdjustment;
+        const cappedAmount = clampToBenefitMax(newAmount, updatedPriorities[i].benefitId);
 
-        if (newAmount >= 0) {
+        if (cappedAmount < newAmount) {
+          // Benefit cap reached, pass the rest of the surplus to the previous priority
+          updatedPriorities[i] = {
+            ...updatedPriorities[i],
+            yearlyAmount: Number(cappedAmount.toFixed(2))
+          };
+          remainingAdjustment = newAmount - cappedAmount;
+        } else if (newAmount >= 0) {
           // This priority can absorb all remaining adjustment
           updatedPriorities[i] = {
             ...updatedPriorities[i],
