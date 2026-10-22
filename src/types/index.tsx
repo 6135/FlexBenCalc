@@ -8,6 +8,18 @@ export interface Priority {
   yearlyAmount: number;
   isHealthInsurance?: boolean;
   note?: string;
+  benefitId?: string; // Catalog benefit id; undefined or 'other' means free-text
+}
+
+export interface BenefitOption {
+  id: string;
+  name: string;
+  appliesTo: string;
+  irsExempt: boolean;
+  provider: string;
+  min?: number; // Yearly minimum (undefined = no minimum)
+  max?: number; // Yearly cap (undefined = no cap)
+  notes?: string; // Extra rules that can't be expressed as min/max
 }
 
 export interface PricingTableRow {

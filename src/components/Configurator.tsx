@@ -318,8 +318,8 @@ export const Configurator: React.FC<ConfiguratorProps> = ({
               
               <div>
                 <label className="text-sm text-gray-700 block mb-1 flex items-center gap-1">
-                  # Dependents (&gt;=25)
-                  <InfoIcon title="Number of dependents 25 years or older" />
+                  # Dependents (25-30)
+                  <InfoIcon title="Number of dependents aged 25 to 30" />
                 </label>
                 <input
                   type="number"
@@ -344,7 +344,7 @@ export const Configurator: React.FC<ConfiguratorProps> = ({
                   <span className="font-semibold">{healthInsuranceCosts.dependentsUnder25Value.toFixed(2)} €</span>
                 </div>
                 <div className="flex justify-between text-sm">
-                  <span className="text-gray-700">Dependents value (&gt;=25)</span>
+                  <span className="text-gray-700">Dependents value (25-30)</span>
                   <span className="font-semibold">{healthInsuranceCosts.dependents25PlusValue.toFixed(2)} €</span>
                 </div>
               </div>
@@ -411,7 +411,7 @@ export const Configurator: React.FC<ConfiguratorProps> = ({
                   <td className="text-center py-2">{pricingTable.upgrade.under25} €</td>
                 </tr>
                 <tr>
-                  <td className="py-2 text-gray-700">Dependent (&gt;=25)</td>
+                  <td className="py-2 text-gray-700">Dependent (25-30)</td>
                   <td className="text-center py-2">{pricingTable.downgrade.over25} €</td>
                   <td className="text-center py-2">{pricingTable.standard.over25} €</td>
                   <td className="text-center py-2">{pricingTable.upgrade.over25} €</td>
