@@ -172,6 +172,15 @@ const App: React.FC = () => {
     bonus
   );
 
+  // Funded yearly total per priority id, after cuts for a short budget
+  const fundedAmounts = useMemo((): Map<number, number> => {
+    const { matrix } = calculateAllocation;
+    return new Map(allPriorities.map((p, i) => [
+      p.id,
+      Math.round(matrix.reduce((sum, month) => sum + month[i] * 100, 0)) / 100
+    ]));
+  }, [calculateAllocation, allPriorities]);
+
   const addPriority = (): void => {
     const newId = Math.max(...priorities.map(p => p.id), 0) + 1;
     setPriorities([...priorities, { id: newId, name: '', yearlyAmount: 0, benefitId: OTHER_BENEFIT_ID }]);
@@ -217,6 +226,14 @@ const App: React.FC = () => {
     
     setPriorities(newPriorities);
     setDraggedItem(index);
+  };
+
+  const movePriority = (index: number, direction: -1 | 1): void => {
+    const target = index + direction;
+    if (target < 0 || target >= priorities.length) return;
+    const newPriorities = [...priorities];
+    [newPriorities[index], newPriorities[target]] = [newPriorities[target], newPriorities[index]];
+    setPriorities(newPriorities);
   };
 
   const handleDragEnd = (): void => {
@@ -536,6 +553,8 @@ const App: React.FC = () => {
           onDragStart={handleDragStart}
           onDragOver={handleDragOver}
           onDragEnd={handleDragEnd}
+          onMovePriority={movePriority}
+          fundedAmounts={fundedAmounts}
         />
 
         <AllocationMatrix

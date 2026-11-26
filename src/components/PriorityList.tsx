@@ -18,7 +18,11 @@ interface PriorityListProps {
   onDragStart: (index: number) => void;
   onDragOver: (e: React.DragEvent, index: number) => void;
   onDragEnd: () => void;
+  onMovePriority: (index: number, direction: -1 | 1) => void;
+  fundedAmounts: Map<number, number>;
 }
+
+const formatEuros = (amount: number): string => `${amount.toFixed(2)} €`;
 
 export const PriorityList: React.FC<PriorityListProps> = ({
   priorities,
@@ -28,7 +32,9 @@ export const PriorityList: React.FC<PriorityListProps> = ({
   onUpdatePriority,
   onDragStart,
   onDragOver,
-  onDragEnd
+  onDragEnd,
+  onMovePriority,
+  fundedAmounts
 }) => {
   return (
     <div className="bg-white rounded-lg shadow-md p-4 sm:p-6 mb-6 sm:mb-8">
@@ -46,6 +52,9 @@ export const PriorityList: React.FC<PriorityListProps> = ({
         {priorities.map((priority, index) => {
           const benefit = getBenefit(priority.benefitId);
           const belowMin = benefit?.min !== undefined && priority.yearlyAmount > 0 && priority.yearlyAmount < benefit.min;
+          const funded = fundedAmounts.get(priority.id) ?? priority.yearlyAmount;
+          const isCut = funded < priority.yearlyAmount - 0.005;
+          const fundedBelowMin = isCut && benefit?.min !== undefined && funded > 0 && funded < benefit.min;
           return (
           <div
             key={priority.id} 
@@ -75,6 +84,28 @@ export const PriorityList: React.FC<PriorityListProps> = ({
                 </div>
                 <div className="flex-shrink-0 w-8 h-8 bg-blue-600 text-white rounded-full flex items-center justify-center font-semibold" title={priority.note || ''}>
                   {index + 1}
+                </div>
+                <div className="flex gap-1 print:hidden">
+                  <button
+                    type="button"
+                    onClick={() => onMovePriority(index, -1)}
+                    disabled={index === 0}
+                    aria-label={`Move ${priority.name || 'priority'} up`}
+                    title="Move up (higher priority)"
+                    className="w-9 h-9 flex items-center justify-center rounded-md border border-gray-300 bg-white text-gray-600 hover:text-blue-600 hover:border-blue-400 disabled:text-gray-300 disabled:border-gray-200 disabled:cursor-not-allowed"
+                  >
+                    ▲
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => onMovePriority(index, 1)}
+                    disabled={index === priorities.length - 1}
+                    aria-label={`Move ${priority.name || 'priority'} down`}
+                    title="Move down (lower priority)"
+                    className="w-9 h-9 flex items-center justify-center rounded-md border border-gray-300 bg-white text-gray-600 hover:text-blue-600 hover:border-blue-400 disabled:text-gray-300 disabled:border-gray-200 disabled:cursor-not-allowed"
+                  >
+                    ▼
+                  </button>
                 </div>
               </div>
               <div className="flex-1 flex flex-col sm:flex-row gap-3">
@@ -128,6 +159,12 @@ export const PriorityList: React.FC<PriorityListProps> = ({
                 {belowMin && (
                   <span className="text-red-600 font-semibold">Below the {benefit.min} € minimum</span>
                 )}
+              </div>
+            )}
+            {isCut && (
+              <div className="text-xs font-semibold text-red-600">
+                Budget too short: funded {formatEuros(funded)} of {formatEuros(priority.yearlyAmount)}.
+                {fundedBelowMin && ` This is below the ${benefit?.min} € minimum.`}
               </div>
             )}
             <div className="flex items-center gap-2">
