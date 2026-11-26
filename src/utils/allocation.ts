@@ -52,10 +52,12 @@ const spreadCents = (total: number, parts: number, index: number): number =>
 
 // Monthly allocation rules:
 // 1. Health insurance rows get funded first, top-down, as much as they still need.
-// 2. The rest of the month splits equally between the other benefits that still need value.
-//    A benefit stops when its yearly value is met. Its unused share goes equally to the others.
-// 3. Cents that do not split equally go to the highest priority (top of the list).
-// 4. The bonus adds to the first month and follows the same rules.
+// 2. The rest of the month splits equally between the other open benefits. Each benefit gets
+//    no more than its monthly cap (yearly value / number of months).
+// 3. Money left after step 2 splits equally between the benefits that still need value,
+//    without the monthly cap. A benefit stops when its yearly value is met.
+// 4. Cents that do not split equally go to the highest priority (top of the list).
+// 5. The bonus adds to the first month and follows the same rules.
 export const calculateAllocation = ({
   effectiveBudget,
   numMonths,
@@ -74,6 +76,10 @@ export const calculateAllocation = ({
   const healthOrder = priorities.map((_, i) => i).filter(i => priorities[i].isHealthInsurance);
   const benefitOrder = priorities.map((_, i) => i).filter(i => !priorities[i].isHealthInsurance);
 
+  // Monthly cap per benefit. Cumulative rounding makes the caps add up to the yearly value.
+  const monthlyCap = (i: number, month: number): number =>
+    Math.floor((neededCents[i] * (month + 1)) / numMonths) - Math.floor((neededCents[i] * month) / numMonths);
+
   for (let month = 0; month < numMonths; month++) {
     let pool = spreadCents(budgetCents, numMonths, month) + (month === 0 ? bonusCents : 0);
     const monthCents = priorities.map(() => 0);
@@ -86,7 +92,11 @@ export const calculateAllocation = ({
       pool -= given;
     });
 
-    pool = waterFill(pool, benefitOrder, stillNeeded, monthCents);
+    const cappedRoom = priorities.map((_, i) => Math.min(monthlyCap(i, month), stillNeeded[i]));
+    pool = waterFill(pool, benefitOrder, cappedRoom, monthCents);
+
+    const uncappedRoom = priorities.map((_, i) => neededCents[i] - allocatedCents[i] - monthCents[i]);
+    pool = waterFill(pool, benefitOrder, uncappedRoom, monthCents);
 
     monthCents.forEach((cents, i) => {
       allocatedCents[i] += cents;

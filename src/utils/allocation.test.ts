@@ -14,31 +14,27 @@ const rowTotal = (matrix: number[][], i: number): number =>
 const sumCents = (values: number[]): number => Math.round(values.reduce((sum, v) => sum + v * 100, 0));
 
 describe('calculateAllocation', () => {
-  it('splits equally, not in proportion to the yearly value', () => {
+  it('matches the 47,92 example: caps per month, extra cents to highest priority', () => {
     const { matrix, surplusPerMonth } = calculateAllocation({
       effectiveBudget: 575,
       numMonths: 12,
-      priorities: [benefit(1, 325), benefit(2, 250)]
+      priorities: [benefit(1, 200), benefit(2, 200), benefit(3, 175)]
     });
 
-    expect(matrix[0]).toEqual([23.96, 23.96]);
-    expect(matrix[10]).toEqual([37.49, 10.42]);
-    expect(matrix[11]).toEqual([47.91, 0]);
-    expect([rowTotal(matrix, 0), rowTotal(matrix, 1)]).toEqual([325, 250]);
+    expect(matrix[0]).toEqual([16.67, 16.67, 14.58]);
+    expect([rowTotal(matrix, 0), rowTotal(matrix, 1), rowTotal(matrix, 2)]).toEqual([200, 200, 175]);
     expect(sumCents(surplusPerMonth)).toBe(0);
   });
 
-  it('gives the share of a completed benefit to the others', () => {
+  it('splits equally and gives the excess of a capped benefit to the others', () => {
     const { matrix } = calculateAllocation({
       effectiveBudget: 240,
       numMonths: 12,
       priorities: [benefit(1, 300), benefit(2, 300), benefit(3, 12)]
     });
 
-    // Pool 20,00: 6,67 / 6,67 / 6,66. Benefit 3 needs 5,34 in month 2; the rest goes to 1 and 2.
-    expect(matrix[0]).toEqual([6.67, 6.67, 6.66]);
-    expect(matrix[1]).toEqual([7.33, 7.33, 5.34]);
-    expect(matrix[2]).toEqual([10, 10, 0]);
+    // Pool 20,00: benefit 3 capped at 1,00, others get 9,50 each.
+    expect(matrix[0]).toEqual([9.5, 9.5, 1]);
     expect(rowTotal(matrix, 2)).toBe(12);
   });
 
