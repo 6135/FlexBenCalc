@@ -53,6 +53,7 @@ export const PriorityList: React.FC<PriorityListProps> = ({
               draggedItem === index ? 'bg-blue-100 opacity-50 scale-95' : 'bg-gray-50 hover:bg-gray-100'
             }`}
             onDragOver={(e) => onDragOver(e, index)}
+            onDrop={(e) => e.preventDefault()}
           >
             <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 sm:gap-4">
               <div className="flex items-center gap-2">
@@ -60,7 +61,12 @@ export const PriorityList: React.FC<PriorityListProps> = ({
                   className="flex-shrink-0 cursor-grab active:cursor-grabbing text-gray-400 hover:text-gray-600" 
                   title="Drag to reorder"
                   draggable
-                  onDragStart={() => onDragStart(index)}
+                  onDragStart={(e) => {
+                    // Firefox does not start a drag without data
+                    e.dataTransfer.setData('text/plain', String(index));
+                    e.dataTransfer.effectAllowed = 'move';
+                    onDragStart(index);
+                  }}
                   onDragEnd={onDragEnd}
                 >
                   <svg width="20" height="20" viewBox="0 0 20 20" fill="currentColor">

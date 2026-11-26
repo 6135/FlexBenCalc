@@ -26,26 +26,38 @@ describe('calculateAllocation', () => {
     expect(sumCents(surplusPerMonth)).toBe(0);
   });
 
-  it('splits equally and gives the excess of a capped benefit to the others', () => {
+  it('fully funds higher priorities and cuts the lowest when the budget is short', () => {
+    const { matrix, surplusPerMonth } = calculateAllocation({
+      effectiveBudget: 575,
+      numMonths: 12,
+      priorities: [benefit(1, 100), benefit(2, 300), benefit(3, 250)]
+    });
+
+    // 650 needed, 575 available: benefit 3 is cut to 175.
+    expect(matrix[1]).toEqual([8.34, 25, 14.58]);
+    expect([rowTotal(matrix, 0), rowTotal(matrix, 1), rowTotal(matrix, 2)]).toEqual([100, 300, 175]);
+    expect(sumCents(surplusPerMonth)).toBe(0);
+  });
+
+  it('gives nothing to a priority when the higher ones use all the budget', () => {
     const { matrix } = calculateAllocation({
       effectiveBudget: 240,
       numMonths: 12,
-      priorities: [benefit(1, 300), benefit(2, 300), benefit(3, 12)]
+      priorities: [benefit(1, 200), benefit(2, 60), benefit(3, 12)]
     });
 
-    // Pool 20,00: benefit 3 capped at 1,00, others get 9,50 each.
-    expect(matrix[0]).toEqual([9.5, 9.5, 1]);
-    expect(rowTotal(matrix, 2)).toBe(12);
+    expect([rowTotal(matrix, 0), rowTotal(matrix, 1), rowTotal(matrix, 2)]).toEqual([200, 40, 0]);
   });
 
-  it('gives cents that do not split equally to the highest priority', () => {
+  it('subtracts health insurance before it cuts the benefits', () => {
     const { matrix } = calculateAllocation({
-      effectiveBudget: 10,
-      numMonths: 1,
-      priorities: [benefit(1, 100), benefit(2, 100), benefit(3, 100)]
+      effectiveBudget: 240,
+      numMonths: 12,
+      priorities: [benefit(-1, 40, true), benefit(1, 150), benefit(2, 150)],
+      bonus: 10
     });
 
-    expect(matrix[0]).toEqual([3.34, 3.33, 3.33]);
+    expect([rowTotal(matrix, 0), rowTotal(matrix, 1), rowTotal(matrix, 2)]).toEqual([40, 150, 60]);
   });
 
   it('lets the remaining benefits take the full allowance after one is complete', () => {

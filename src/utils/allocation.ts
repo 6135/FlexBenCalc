@@ -50,14 +50,28 @@ const waterFill = (pool: number, order: number[], room: number[], allocation: nu
 const spreadCents = (total: number, parts: number, index: number): number =>
   Math.floor(total / parts) + (index < total % parts ? 1 : 0);
 
+// Yearly target per benefit. When the money is not enough for all benefits, the targets fill
+// top-down: higher priorities get their full value, the lowest priorities get cut.
+const fundedTargets = (neededCents: number[], benefitOrder: number[], availableCents: number): number[] => {
+  const targets = [...neededCents];
+  let remaining = Math.max(0, availableCents);
+  benefitOrder.forEach(i => {
+    targets[i] = Math.min(neededCents[i], remaining);
+    remaining -= targets[i];
+  });
+  return targets;
+};
+
 // Monthly allocation rules:
 // 1. Health insurance rows get funded first, top-down, as much as they still need.
-// 2. The rest of the month splits equally between the other open benefits. Each benefit gets
+// 2. If the money left for the year is not enough, the yearly values of the lowest
+//    priorities are cut (see fundedTargets). The steps below use these cut values.
+// 3. The rest of the month splits equally between the other open benefits. Each benefit gets
 //    no more than its monthly cap (yearly value / number of months).
-// 3. Money left after step 2 splits equally between the benefits that still need value,
+// 4. Money left after step 3 splits equally between the benefits that still need value,
 //    without the monthly cap. A benefit stops when its yearly value is met.
-// 4. Cents that do not split equally go to the highest priority (top of the list).
-// 5. The bonus adds to the first month and follows the same rules.
+// 5. Cents that do not split equally go to the highest priority (top of the list).
+// 6. The bonus adds to the first month and follows the same rules.
 export const calculateAllocation = ({
   effectiveBudget,
   numMonths,
@@ -70,11 +84,14 @@ export const calculateAllocation = ({
 
   const budgetCents = Math.max(0, toCents(effectiveBudget));
   const bonusCents = Math.max(0, toCents(bonus));
-  const neededCents = priorities.map(p => Math.max(0, toCents(p.yearlyAmount)));
+  const requestedCents = priorities.map(p => Math.max(0, toCents(p.yearlyAmount)));
   const allocatedCents = priorities.map(() => 0);
 
   const healthOrder = priorities.map((_, i) => i).filter(i => priorities[i].isHealthInsurance);
   const benefitOrder = priorities.map((_, i) => i).filter(i => !priorities[i].isHealthInsurance);
+
+  const healthCents = healthOrder.reduce((sum, i) => sum + requestedCents[i], 0);
+  const neededCents = fundedTargets(requestedCents, benefitOrder, budgetCents + bonusCents - healthCents);
 
   // Monthly cap per benefit. Cumulative rounding makes the caps add up to the yearly value.
   const monthlyCap = (i: number, month: number): number =>
