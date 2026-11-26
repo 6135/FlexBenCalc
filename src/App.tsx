@@ -166,7 +166,7 @@ const App: React.FC = () => {
 
   // Calculate allocation using hook
   const { calculateAllocation, totalSurplus } = useAllocationCalculations(
-    monthlyAllowance,
+    effectiveBudget,
     numMonths,
     allPriorities,
     bonus
